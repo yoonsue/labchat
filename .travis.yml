@@ -1,0 +1,25 @@
+language: go
+
+go:
+  - master
+  - 1.6
+  - 1.8.x
+  - tip
+
+before_install:
+  - go get -t -v ./...
+
+install: true
+
+befor_script:
+  - GO_FILES=$(find . -iname '*.go' -type f | grep -v /vendor/)
+  - go get github.com/golang/lint/golint
+
+script:
+  - test -z $(gofmt -s -l $GO_FILES)
+  - go test -v -race ./...
+  - go test -race -coverprofile-coverage.txt -covermode-atomic
+  - golint -set_exit_status $(go list ./...)
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
