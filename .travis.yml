@@ -13,12 +13,12 @@ before_script:
   - GO_FILES=$(find . -iname '*.go' -type f | grep -v /vendor/)
   - go get github.com/golang/lint/golint
   - go get -u github.com/golang/dep/cmd/dep		# dependency check -> dep init
-  - dep ensure									# dependency check
+  - dep ensure									
 
 script:
   - test -z $(gofmt -s -l $GO_FILES)
   - go test -v -race ./...
-  - go test -race -coverprofile-coverage.txt -covermode-atomic
+  - ./codecov.sh
   - golint -set_exit_status $(go list ./...)
 
 after_success:
