@@ -1,9 +1,7 @@
 language: go
 
 go:
-  - master
-  - 1.6
-  - 1.8.x
+  - 1.10.2
   - tip
 
 before_install:
@@ -11,9 +9,11 @@ before_install:
 
 install: true
 
-befor_script:
+before_script:
   - GO_FILES=$(find . -iname '*.go' -type f | grep -v /vendor/)
   - go get github.com/golang/lint/golint
+  - go get -u github.com/golang/dep/cmd/dep		# dependency check -> dep init
+  - dep ensure									# dependency check
 
 script:
   - test -z $(gofmt -s -l $GO_FILES)
