@@ -1,5 +1,9 @@
 package server
 
+import (
+	"net/http"
+)
+
 // Server provides http service for the labchat service.
 type Server struct {
 	// TODO: implementation.
@@ -15,4 +19,9 @@ func NewServer(cfg *Config) (srv *Server, err error) {
 // long-running server functionality should be implemented in goroutines.
 func (s *Server) Start() {
 	// TODO: implementation.
+	http.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
+		res.Write([]byte("Hello, world!"))
+	})
+
+	http.ListenAndServe(":80", nil)
 }
