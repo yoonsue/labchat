@@ -4,3 +4,6 @@ vendor/
 
 # Executable
 labchat
+
+# Configuration file.
+labchat.conf.yaml
