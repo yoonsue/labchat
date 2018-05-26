@@ -38,7 +38,7 @@ func (s *Server) Start() {
 func loadMsg(filepath string) bool {
 	file, err := os.OpenFile(filepath, os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.FileMode(0644))
 	if err != nil {
-		fmt.Print("Error: openFile %s\n", err)
+		fmt.Printf("Error: openFile %s\n", err.Error())
 		return false
 	}
 	defer file.Close()
@@ -47,14 +47,14 @@ func loadMsg(filepath string) bool {
 	s := "Hello"
 	n, err = file.Write([]byte(s))
 	if err != nil {
-		fmt.Print("Error: write %s\n", err)
+		fmt.Printf("Error: write %s\n", err.Error())
 		return false
 	}
 	fmt.Println(n, " byte saved in ", filepath)
 
 	fi, err := file.Stat()
 	if err != nil {
-		fmt.Print("Error: file stat %s\n", err)
+		fmt.Printf("Error: file stat %s\n", err.Error())
 		return false
 	}
 
@@ -64,7 +64,7 @@ func loadMsg(filepath string) bool {
 
 	n, err = file.Read(data)
 	if err != nil {
-		fmt.Print("Error: read %s\n", err)
+		fmt.Printf("Error: read %s\n", err.Error())
 		return false
 	}
 
