@@ -1,9 +1,11 @@
 *.[oa]
 *~
-vendor/
 
 # Executable
+vendor/
+.vscode/
 labchat
+debug
 
 # Configuration file.
 labchat.conf.yaml
