@@ -58,7 +58,7 @@ func loadJson(filepath string) bool {
 
 	fi, err := file.Stat()
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "failed to get status json file"))
+		log.Println(errors.Wrap(err, "failed to get status json file"))
 	}
 
 	var data = make([]byte, fi.Size())

@@ -1,8 +1,14 @@
 package server
 
 import (
+	"encoding/json"
+	"fmt"
+	"html"
 	"log"
 	"net/http"
+	"strings"
+
+	"github.com/pkg/errors"
 )
 
 // Address is for server address.
@@ -38,4 +44,58 @@ func (s *Server) Start() {
 
 	// TODO: need to halt goroutine when the program is stopped.
 	go http.ListenAndServe(s.cfg.Address, nil)
+}
+
+//// Below stuctures are created following 'Kakao Api specifications'
+//// more information at 'https://github.com/plusfriend/auto_reply'
+
+// 'keyboard' contains information about buttons that are in the field keyboard
+// GET	http://your_server_url/keyboard
+type keyboard struct {
+	Type string `json:"type"`
+}
+
+// 'message'
+// POST	http://your_server_url/message
+type message struct {
+	UserKey string `json:"user_key"`
+	Type    string `json:"type"`
+	Content string `json:"content"`
+}
+
+// POST	http://your_server_url/friend
+// DELETE	http://your_server_url/friend/:user_key
+
+// DELETE	http(s)://:your_server_url/chat_room/:user_key
+
+func handlehttp(w http.ResponseWriter, r *http.Request) {
+	log.Println("received: %s\t %s\n", r.Method, html.EscapeString(r.URL.Path))
+
+	if r.Method == "GET" && r.URL.Path == "/labchat/keyboard" {
+		resp, err := json.Marshal(keyboard{Type: "text"})
+		if err != nil {
+			log.Println(errors.Wrap(err, "failed to marshal 'keyboard'"))
+		}
+		fmt.Fprint(w, string(resp))
+		return
+	}
+
+	if r.Method == "POST" && r.URL.Path == "/labchat/message" {
+		return
+	}
+
+	if r.Method == "POST" && r.URL.Path == "/labchat/friend" {
+		return
+	}
+
+	if r.Method == "DELETE" {
+		split := strings.Split(r.URL.Path, ":")
+		if split[0] == "/labchat/friend/" {
+			log.Println("user %s deleted", split[1])
+		}
+		if split[0] == "/labchat/chat_room/" {
+			log.Println("user %s leaved", split[2])
+		}
+		return
+	}
 }
