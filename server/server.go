@@ -69,7 +69,7 @@ type message struct {
 // DELETE	http(s)://:your_server_url/chat_room/:user_key
 
 func handlehttp(w http.ResponseWriter, r *http.Request) {
-	log.Println("received: %s\t %s\n", r.Method, html.EscapeString(r.URL.Path))
+	log.Printf("received: %s\t %s\n", r.Method, html.EscapeString(r.URL.Path))
 
 	if r.Method == "GET" && r.URL.Path == "/labchat/keyboard" {
 		resp, err := json.Marshal(keyboard{Type: "text"})
@@ -91,10 +91,10 @@ func handlehttp(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "DELETE" {
 		split := strings.Split(r.URL.Path, ":")
 		if split[0] == "/labchat/friend/" {
-			log.Println("user %s deleted", split[1])
+			log.Printf("user %s deleted", split[1])
 		}
 		if split[0] == "/labchat/chat_room/" {
-			log.Println("user %s leaved", split[2])
+			log.Printf("user %s leaved", split[2])
 		}
 		return
 	}
