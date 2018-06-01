@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
@@ -63,10 +64,21 @@ type message struct {
 	Content string `json:"content"`
 }
 
+// response struct meaning
+type resptext struct {
+	Text string `json:"text"`
+}
+type response struct {
+	Message resptext `json:"message"`
+}
+type user struct {
+	UserKey string `json:"user_key"`
+}
+
 // POST	http://your_server_url/friend
 // DELETE	http://your_server_url/friend/:user_key
 
-// DELETE	http(s)://:your_server_url/chat_room/:user_key
+// DELETE	http://:your_server_url/chat_room/:user_key
 
 func handlehttp(w http.ResponseWriter, r *http.Request) {
 	log.Printf("received: %s\t %s\n", r.Method, html.EscapeString(r.URL.Path))
@@ -81,6 +93,17 @@ func handlehttp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "POST" && r.URL.Path == "/labchat/message" {
+		body, err := ioutil.ReadAll(r.Body)
+		r.Body.Close()
+		if err != nil {
+			log.Println(errors.Wrap(err, "failed to read body of /message"))
+		}
+		log.Printf("body: %s\n", string(body))
+
+		var msg message
+		if err := json.Unmarshal(body, &msg); err != nil {
+			log.Println(errors.Wrap(err, "failed to unmarshal /message"))
+		}
 		return
 	}
 
