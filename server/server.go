@@ -43,6 +43,8 @@ func (s *Server) Start() {
 		res.Write([]byte("Hello, world!"))
 	})
 
+	http.HandleFunc("/labchat/", handlehttp)
+
 	// TODO: need to halt goroutine when the program is stopped.
 	go http.ListenAndServe(s.cfg.Address, nil)
 }
@@ -75,14 +77,10 @@ type user struct {
 	UserKey string `json:"user_key"`
 }
 
-// POST	http://your_server_url/friend
-// DELETE	http://your_server_url/friend/:user_key
-
-// DELETE	http://:your_server_url/chat_room/:user_key
-
 func handlehttp(w http.ResponseWriter, r *http.Request) {
 	log.Printf("received: %s\t %s\n", r.Method, html.EscapeString(r.URL.Path))
 
+	// curl -XGET 'https://:your_server_url/keyboard'
 	if r.Method == "GET" && r.URL.Path == "/labchat/keyboard" {
 		resp, err := json.Marshal(keyboard{Type: "text"})
 		if err != nil {
@@ -92,6 +90,11 @@ func handlehttp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//curl -XPOST 'https://:your_server_url/message' -d '{
+	//   "user_key": "encryptedUserKey",
+	//   "type": "text",
+	//   "content": "차량번호등록"
+	// }'
 	if r.Method == "POST" && r.URL.Path == "/labchat/message" {
 		body, err := ioutil.ReadAll(r.Body)
 		r.Body.Close()
@@ -100,25 +103,78 @@ func handlehttp(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Printf("body: %s\n", string(body))
 
+		// input unmarshaled body at message
 		var msg message
 		if err := json.Unmarshal(body, &msg); err != nil {
 			log.Println(errors.Wrap(err, "failed to unmarshal /message"))
 		}
+
+		// check meskey exist
+		msgCon := messageKey(msg.Content)
+		// if there is no msg key, return same msg
+		if msgCon == "none" {
+			msgCon = msg.Content
+		}
+
+		// response
+		// {
+		// 	"message":{
+		// 		"text" : "귀하의 차량이 성공적으로 등록되었습니다. 축하합니다!"
+		// 	}
+		// }
+		remsg := msgFor(strings.Fields(msgCon))
+		resp, err := json.Marshal(response{
+			Message: resptext{
+				Text: remsg}})
+		if err != nil {
+			log.Println(errors.Wrap(err, "failed to marshal response"))
+		}
+		log.Printf("send %s\n", string(resp))
+		fmt.Fprintf(w, string(resp))
 		return
 	}
 
+	// curl -XPOST 'https://:your_server_url/friend' -d '{"user_key" : "HASHED_USER_KEY" }'
 	if r.Method == "POST" && r.URL.Path == "/labchat/friend" {
 		return
 	}
 
 	if r.Method == "DELETE" {
 		split := strings.Split(r.URL.Path, ":")
+
+		// curl -XDELETE 'https://:your_server_url/chat_room/HASHED_USER_KEY'
 		if split[0] == "/labchat/friend/" {
 			log.Printf("user %s deleted", split[1])
 		}
+
+		// DELETE	http://:your_server_url/chat_room/:user_key
 		if split[0] == "/labchat/chat_room/" {
 			log.Printf("user %s leaved", split[2])
 		}
 		return
 	}
+}
+
+var messageKeyMap = map[string]string{
+	"hi":    "hi",
+	"hello": "hi",
+}
+
+func messageKey(rawmessage string) string {
+	key, result := messageKeyMap[rawmessage]
+	if !result {
+		return "none"
+	}
+	return key
+}
+
+func msgFor(tokens []string) string {
+	// exec command
+	if tokens[0] == "ex" {
+		if len(tokens) < 2 {
+			return "no command"
+		}
+		// TODO
+	}
+	return strings.Join(tokens, "...") + "....????"
 }
