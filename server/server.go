@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"html"
 	"io/ioutil"
 	"log"
@@ -33,11 +32,11 @@ func NewServer(cfg *Config) (srv *Server, err error) {
 // long-running server functionality should be implemented in goroutines.
 func (s *Server) Start() {
 	// TODO: implementation.
-	filepath := "msg.json"
-	if !loadJson(filepath) {
-		log.Println("Error: func loadMsg failed")
-	}
-	log.Println("Success: loadMsg")
+	// filepath := "msg.json"
+	// if !loadJson(filepath) {
+	// 	log.Println("Error: func loadMsg failed")
+	// }
+	// log.Println("Success: loadMsg")
 
 	http.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
 		res.Write([]byte("Hello, world!"))
@@ -86,7 +85,7 @@ func handlehttp(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println(errors.Wrap(err, "failed to marshal 'keyboard'"))
 		}
-		fmt.Fprint(w, string(resp))
+		w.Write([]byte(string(resp) + "\n"))
 		return
 	}
 
@@ -130,7 +129,7 @@ func handlehttp(w http.ResponseWriter, r *http.Request) {
 			log.Println(errors.Wrap(err, "failed to marshal response"))
 		}
 		log.Printf("send %s\n", string(resp))
-		fmt.Fprintf(w, string(resp))
+		w.Write([]byte(string(resp) + "\n"))
 		return
 	}
 
@@ -156,7 +155,7 @@ func handlehttp(w http.ResponseWriter, r *http.Request) {
 }
 
 var messageKeyMap = map[string]string{
-	"hi":    "hi",
+	"hi":    "hello",
 	"hello": "hi",
 }
 
@@ -176,5 +175,5 @@ func msgFor(tokens []string) string {
 		}
 		// TODO
 	}
-	return strings.Join(tokens, "...") + "....????"
+	return strings.Join(tokens, " ") + "....????"
 }
