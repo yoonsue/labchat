@@ -38,7 +38,7 @@ func (s *Server) Start() {
 	// }
 	// log.Println("Success: loadMsg")
 
-	http.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
+	http.HandleFunc("/labchat/", func(res http.ResponseWriter, req *http.Request) {
 		res.Write([]byte("Hello, world!"))
 	})
 
@@ -177,3 +177,5 @@ func msgFor(tokens []string) string {
 	}
 	return strings.Join(tokens, " ") + "....????"
 }
+
+// Now I'm struggling with server setting....
