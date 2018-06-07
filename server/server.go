@@ -38,7 +38,7 @@ func (s *Server) Start() {
 	// }
 	// log.Println("Success: loadMsg")
 
-	http.HandleFunc("/labchat/", func(res http.ResponseWriter, req *http.Request) {
+	http.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
 		res.Write([]byte("Hello, world!"))
 	})
 
@@ -54,7 +54,8 @@ func (s *Server) Start() {
 // 'keyboard' contains information about buttons that are in the field keyboard
 // GET	http://your_server_url/keyboard
 type keyboard struct {
-	Type string `json:"type"`
+	Type    string   `json:"type"`
+	Buttons []string `json:"buttons"`
 }
 
 // 'message'
@@ -81,7 +82,10 @@ func handlehttp(w http.ResponseWriter, r *http.Request) {
 
 	// curl -XGET 'https://:your_server_url/keyboard'
 	if r.Method == "GET" && r.URL.Path == "/labchat/keyboard" {
-		resp, err := json.Marshal(keyboard{Type: "text"})
+		initkeyboard := make([]keyboard, 1)
+		initkeyboard[0].Type = "buttons"
+		initkeyboard[0].Buttons = []string{"option1", "option2", "option3"}
+		resp, err := json.Marshal(initkeyboard)
 		if err != nil {
 			log.Println(errors.Wrap(err, "failed to marshal 'keyboard'"))
 		}
