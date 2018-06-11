@@ -32,12 +32,6 @@ func NewServer(cfg *Config) (srv *Server, err error) {
 // long-running server functionality should be implemented in goroutines.
 func (s *Server) Start() {
 	// TODO: implementation.
-	// filepath := "msg.json"
-	// if !loadJson(filepath) {
-	// 	log.Println("Error: func loadMsg failed")
-	// }
-	// log.Println("Success: loadMsg")
-
 	http.HandleFunc("/labchat/", handlehttp)
 
 	// TODO: need to halt goroutine when the program is stopped.
@@ -75,7 +69,7 @@ type user struct {
 
 func handlehttp(w http.ResponseWriter, r *http.Request) {
 	log.Printf("received: %s\t %s\n", r.Method, html.EscapeString(r.URL.Path))
-	w.Write([]byte("Hello, world!"))
+
 	// curl -XGET 'https://:your_server_url/keyboard'
 	if r.Method == "GET" && r.URL.Path == "/labchat/keyboard" {
 		// CASE1 Type: 'text'
@@ -113,9 +107,9 @@ func handlehttp(w http.ResponseWriter, r *http.Request) {
 			log.Println(errors.Wrap(err, "failed to unmarshal /message"))
 		}
 
-		// check meskey exist
+		// check mesKey exist
 		msgCon := messageKey(msg.Content)
-		// if there is no msg key, return same msg
+		// if there is no msgKey, return same msg
 		if msgCon == "none" {
 			msgCon = msg.Content
 		}
@@ -138,6 +132,7 @@ func handlehttp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// friend information
 	// curl -XPOST 'https://:your_server_url/friend' -d '{"user_key" : "HASHED_USER_KEY" }'
 	if r.Method == "POST" && r.URL.Path == "/labchat/friend" {
 		body, err := ioutil.ReadAll(r.Body)
@@ -158,11 +153,13 @@ func handlehttp(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "DELETE" {
 		split := strings.Split(r.URL.Path, ":")
 
+		// chatroom delete by admin
 		// curl -XDELETE 'https://:your_server_url/chat_room/HASHED_USER_KEY'
 		if split[0] == "/labchat/friend/" {
 			log.Printf("user %s deleted", split[1])
 		}
 
+		// chatroom deleted by user
 		// DELETE	http://:your_server_url/chat_room/:user_key
 		if split[0] == "/labchat/chat_room/" {
 			log.Printf("user %s leaved", split[2])
