@@ -184,7 +184,7 @@ func messageKey(rawmessage string) string {
 
 func msgFor(tokens []string) string {
 	// exec command
-	if tokens[0] == "ex" {
+	if tokens[0] == "lab" {
 		if len(tokens) < 2 {
 			return "no command"
 		}
