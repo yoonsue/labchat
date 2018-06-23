@@ -6,7 +6,10 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
+
+	"github.com/yoonsue/labchat/function"
 
 	"github.com/pkg/errors"
 )
@@ -189,6 +192,11 @@ func msgFor(tokens []string) string {
 			return "no command"
 		}
 		// TODO
+		if tokens[1] == "temp" {
+			temp := function.ServerCheck().Temperature
+			//time := function.ServerCheck().TimeStamp
+			return strconv.FormatFloat(float64(temp), 'g', 1, 64)
+		}
 	}
 	return strings.Join(tokens, " ") + "....????"
 }
