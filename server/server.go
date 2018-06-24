@@ -187,7 +187,9 @@ func messageKey(rawmessage string) string {
 
 func msgFor(tokens []string) string {
 	// exec command
-	if tokens[0] == "lab" {
+	if tokens[0] == "lab" || tokens[0] == "Lab" || tokens[0] == "LAB" {
+		time := function.ServerCheck().TimeStamp
+		strtime := time.Format("2006-01-02 15:04:05")
 		if len(tokens) < 2 {
 			return "no command"
 		}
@@ -195,7 +197,7 @@ func msgFor(tokens []string) string {
 		if tokens[1] == "temp" {
 			temp := function.ServerCheck().Temperature
 			//time := function.ServerCheck().TimeStamp
-			return strconv.FormatFloat(float64(temp), 'g', 1, 64)
+			return (strtime + strconv.FormatFloat(float64(temp), 'g', 1, 64))
 		}
 	}
 	return strings.Join(tokens, " ") + "....????"

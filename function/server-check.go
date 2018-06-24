@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/yoonsue/labchat/model"
@@ -15,6 +16,7 @@ func ServerCheck() model.ServerStatus {
 	status := model.ServerStatus{}
 	// Access somewhere to get status..
 	status.Temperature = getTemp()
+	status.TimeStamp = getTime()
 	return status
 }
 
@@ -37,6 +39,12 @@ func getTemp() model.Temperature {
 		log.Println(temp)
 	}
 	return temp
+}
+
+func getTime() time.Time {
+	time := time.Now()
+	log.Println(time.Format("2006-01-02 15:04:05"))
+	return time
 }
 
 // float64frombytes changes bytes to float64
