@@ -43,7 +43,7 @@ func getTemp() model.Temperature {
 
 func getTime() time.Time {
 	time := time.Now()
-	log.Println(time.Format("2006-01-02 15:04:05"))
+	//log.Println(time.Format("2006-01-02 15:04:05"))
 	return time
 }
 
