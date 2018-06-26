@@ -14,12 +14,14 @@ import (
 // a configuration file.
 // TODO: allow to change configuration file path by command-line interface.
 const defaultConfigPath = "./labchat.conf.yaml"
+const defaultLogPath = "./labchat.log"
 
 // Bootstrap is the entry point for running the labchat server.
 // It generates the necessary configuration files and creates the components
 // of the system, and injects the dependencies according to its hierarchy.
 func Bootstrap() {
 	// TODO: load the configuration.
+	setLog(defaultLogPath)
 	log.Println("bootstrap the labchat service")
 
 	yamlConfig, err := readConfig(defaultConfigPath)
