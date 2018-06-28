@@ -21,7 +21,8 @@ const defaultLogPath = "./labchat.log"
 // of the system, and injects the dependencies according to its hierarchy.
 func Bootstrap() {
 	// TODO: load the configuration.
-	setLog(defaultLogPath)
+	logConfig := setLog(defaultLogPath)
+	log.SetOutput(logConfig)
 	log.Println("bootstrap the labchat service")
 
 	yamlConfig, err := readConfig(defaultConfigPath)

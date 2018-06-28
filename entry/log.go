@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func setLog(logpath string) {
+func setLog(logpath string) (file *os.File) {
 	println("LogFile: " + logpath)
 	file, err := os.OpenFile(logpath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -14,4 +14,5 @@ func setLog(logpath string) {
 	defer file.Close()
 
 	log.SetOutput(file)
+	return file
 }
