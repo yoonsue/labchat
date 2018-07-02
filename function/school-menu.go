@@ -15,3 +15,7 @@ func getHref(t html.Token) (ok bool, href string) {
 	}
 	return
 }
+
+func crawl(url string) {
+
+}

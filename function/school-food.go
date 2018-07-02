@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// Fetcher is getting body from HTML URL
 type Fetcher interface {
 	// Fetch returns the body of URL and
 	// a slice of URLs found on that page.
