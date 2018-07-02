@@ -11,7 +11,7 @@ func setLog(logpath string) (file *os.File) {
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
-	defer file.Close()
+	//defer file.Close()
 
 	log.SetOutput(file)
 	return file
