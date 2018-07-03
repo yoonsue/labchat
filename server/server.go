@@ -199,6 +199,11 @@ func msgFor(tokens []string) string {
 			temp := status.Temperature
 			return ("TIME : " + strtime + "\n TEMP : " + strconv.FormatFloat(float64(temp), 'g', -1, 64) + " C")
 		}
+		if tokens[1] == "menu" {
+			menu := function.GetMenu("http://www.hanyang.ac.kr/web/www/-255")
+			menuS := string(menu)
+			return ("cafeteria menu : " + menuS)
+		}
 	}
 	return strings.Join(tokens, " ") + "....????"
 }
