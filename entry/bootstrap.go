@@ -63,5 +63,5 @@ func Bootstrap() {
 // be reused the next time of booting labchat.
 func cleanup() {
 	// TODO: implementation.
-	// TODO: log file close
+	cleanlog(defaultLogPath)
 }
