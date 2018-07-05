@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/PuerkitoBio/goquery"
+	"github.com/gocolly/colly"
 	"github.com/pkg/errors"
 )
 
@@ -27,7 +29,6 @@ func GetMenu(url string) []byte {
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "failed to read HTML body"))
 	}
-	fmt.Printf("\n\nORIGINAL:\n%s\n", html)
 	// root, err := html.Parse(resp.Body)
 	// if err != nil {
 	// 	log.Fatal(errors.Wrap(err, "failed to parse HTML body"))
@@ -35,4 +36,35 @@ func GetMenu(url string) []byte {
 	// fmt.Printf("\n\nPARSED:%s\n", root)
 	//element, ok := getElementById("login_field", root)
 	return html
+}
+
+// GetMenuColly gets menu from HTML body
+func GetMenuColly(url string) string {
+	c := colly.NewCollector(
+		colly.AllowedDomains(url),
+	)
+
+	c.OnRequest(func(r *colly.Request) {
+		fmt.Println("Visiting: ", r.URL.String())
+	})
+
+	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
+		title := e.ChildText("h3")
+		fmt.Println("Found: ", title)
+	})
+	return "hello"
+}
+
+func postScrap(url string) {
+	doc, err := goquery.NewDocument(url)
+	if err != nil {
+		log.Println(errors.Wrap(err, "failed to get URL"))
+	}
+
+	doc.Find("#messhall1 div div div div ul li").Each(func(index int, item *goquery.Selection) {
+		title := item.Text()
+		menu := item.Find("h3")
+		fmt.Printf("Post #%d: %s - %s\n", index, title, menu)
+
+	})
 }

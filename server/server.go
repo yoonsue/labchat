@@ -9,9 +9,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/yoonsue/labchat/function"
-
 	"github.com/pkg/errors"
+	"github.com/yoonsue/labchat/function"
 )
 
 // Address is for server address.
@@ -202,6 +201,7 @@ func msgFor(tokens []string) string {
 		if tokens[1] == "menu" {
 			menu := function.GetMenu("http://www.hanyang.ac.kr/web/www/-255")
 			menuS := string(menu)
+			//menuC := function.GetMenuColly("http://www.hanyang.ac.kr/web/www/-254")
 			return ("cafeteria menu : " + menuS)
 		}
 	}
