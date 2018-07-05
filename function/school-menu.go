@@ -55,16 +55,26 @@ func GetMenuColly(url string) string {
 	return "hello"
 }
 
-func postScrap(url string) {
+// Scrap gets element that you want
+func Scrap(url string) string {
 	doc, err := goquery.NewDocument(url)
 	if err != nil {
 		log.Println(errors.Wrap(err, "failed to get URL"))
 	}
+	// //*[@id="content"]/div[2]/div[1]/div/h3
+	// //*[@id="yui_patched_v3_11_0_1_1530810633127_193"]/div[1]/div/h3
+	// //*[@id="p_p_id_56_INSTANCE_3N8IwmXJbuCj_"]/div/div/div[1]/div/div[2]/h4/strong
+	// title := doc.Find("#content div[2] div div h3").Text()
+	// // titleText := title.Text()
+	// fmt.Printf("title: %s\n", title)
 
 	doc.Find("#messhall1 div div div div ul li").Each(func(index int, item *goquery.Selection) {
-		title := item.Text()
+		doc.Find("h3")
 		menu := item.Find("h3")
-		fmt.Printf("Post #%d: %s - %s\n", index, title, menu)
-
+		menuText := menu.Text()
+		fmt.Printf("Post #%d: %s \n", index, menuText)
+		// return ("Post #" + string(index) + ": " + title + " - " + menuText + "\n")
 	})
+
+	return "_"
 }

@@ -199,10 +199,16 @@ func msgFor(tokens []string) string {
 			return ("TIME : " + strtime + "\n TEMP : " + strconv.FormatFloat(float64(temp), 'g', -1, 64) + " C")
 		}
 		if tokens[1] == "menu" {
-			menu := function.GetMenu("http://www.hanyang.ac.kr/web/www/-255")
-			menuS := string(menu)
-			//menuC := function.GetMenuColly("http://www.hanyang.ac.kr/web/www/-254")
-			return ("cafeteria menu : " + menuS)
+			// menu := function.GetMenu("http://www.hanyang.ac.kr/web/www/-255")
+			// menuS := string(menu)
+			// menuC := function.GetMenuColly("http://www.hanyang.ac.kr/web/www/-254")
+			// 교직원식당
+			menuPro := function.Scrap("http://www.hanyang.ac.kr/web/www/-254")
+			// 학생식당
+			menuStu := function.Scrap("http://www.hanyang.ac.kr/web/www/-255")
+			// 창업보육센터
+			menuStartup := function.Scrap("http://www.hanyang.ac.kr/web/www/-258")
+			return ("교직원식당 : " + menuPro + "\n" + "학생식당 : " + menuStu + "\n" + "창업보육센터 : " + menuStartup + "\n")
 		}
 	}
 	return strings.Join(tokens, " ") + "....????"
