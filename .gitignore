@@ -2,12 +2,16 @@
 *~
 
 # Executable
-vendor/
-.vscode/
 labchat
+
+# 3rd party libraries
+vendor/
+
+# Debugs
 debug
-msg.json
 labchat.log
 
 # Configuration file.
 labchat.conf.yaml
+msg.json
+.vscode/
