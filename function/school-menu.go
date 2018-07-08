@@ -9,6 +9,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
 	"github.com/pkg/errors"
+	"github.com/yoonsue/labchat/model"
 )
 
 // URL1: http://www.hanyang.ac.kr/web/www/-255	학생식당
@@ -55,6 +56,40 @@ func GetMenuColly(url string) string {
 	return "hello"
 }
 
+// MenuGet assigns menu to Menu model
+func MenuGet(url string) model.Menu {
+	menu := model.Menu{}
+	// menu.Title :=
+	menu.Menu = scrapMenu(url)
+	return menu
+}
+
+// scrapMenu gets menu from the URL
+func scrapMenu(url string) string {
+	doc, err := goquery.NewDocument(url)
+	if err != nil {
+		log.Println(errors.Wrap(err, "failed to get URL"))
+	}
+	MenuText := "no result"
+	// //*[@id="content"]/div[2]/div[1]/div/h3
+	// //*[@id="yui_patched_v3_11_0_1_1530810633127_193"]/div[1]/div/h3
+	// //*[@id="p_p_id_56_INSTANCE_3N8IwmXJbuCj_"]/div/div/div[1]/div/div[2]/h4/strong
+	// title := doc.Find("#content div[2] div div h3").Text()
+	// // titleText := title.Text()
+	// fmt.Printf("title: %s\n", title)
+	fmt.Printf("#1\n")
+
+	doc.Find("#messhall1 div div div div ul li").Each(func(index int, item *goquery.Selection) {
+		doc.Find("h3")
+		menu := item.Find("h3")
+		MenuText := menu.Text()
+		fmt.Printf("Post #%d: %s \n", index, MenuText)
+		// return ("Post #" + string(index) + ": " + title + " - " + menuText + "\n")
+	})
+
+	return MenuText
+}
+
 // Scrap gets element that you want
 func Scrap(url string) string {
 	doc, err := goquery.NewDocument(url)
@@ -67,6 +102,7 @@ func Scrap(url string) string {
 	// title := doc.Find("#content div[2] div div h3").Text()
 	// // titleText := title.Text()
 	// fmt.Printf("title: %s\n", title)
+	fmt.Printf("#2\n")
 
 	doc.Find("#messhall1 div div div div ul li").Each(func(index int, item *goquery.Selection) {
 		doc.Find("h3")

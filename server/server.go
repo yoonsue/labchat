@@ -203,12 +203,13 @@ func msgFor(tokens []string) string {
 			// menuS := string(menu)
 			// menuC := function.GetMenuColly("http://www.hanyang.ac.kr/web/www/-254")
 			// 교직원식당
-			menuPro := function.Scrap("http://www.hanyang.ac.kr/web/www/-254")
+			// menuPro := function.MenuGet("http://www.hanyang.ac.kr/web/www/-254")
+			menuPro := function.MenuGet("http://www.hanyang.ac.kr/web/www/-254?p_p_id=foodView_WAR_foodportlet&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view&p_p_col_id=column-1&p_p_col_pos=1&p_p_col_count=2&_foodView_WAR_foodportlet_sFoodDateDay=9&_foodView_WAR_foodportlet_sFoodDateYear=2018&_foodView_WAR_foodportlet_action=view&_foodView_WAR_foodportlet_sFoodDateMonth=6")
 			// 학생식당
-			menuStu := function.Scrap("http://www.hanyang.ac.kr/web/www/-255")
+			menuStu := function.Scrap("http://www.hanyang.ac.kr/web/www/-254?p_p_id=foodView_WAR_foodportlet&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view&p_p_col_id=column-1&p_p_col_pos=1&p_p_col_count=2&_foodView_WAR_foodportlet_sFoodDateDay=9&_foodView_WAR_foodportlet_sFoodDateYear=2018&_foodView_WAR_foodportlet_action=view&_foodView_WAR_foodportlet_sFoodDateMonth=6") //http://www.hanyang.ac.kr/web/www/-255")
 			// 창업보육센터
-			menuStartup := function.Scrap("http://www.hanyang.ac.kr/web/www/-258")
-			return ("교직원식당 : " + menuPro + "\n" + "학생식당 : " + menuStu + "\n" + "창업보육센터 : " + menuStartup + "\n")
+			// menuStartup := function.MenuGet("http://www.hanyang.ac.kr/web/www/-258")
+			return ("교직원식당 : " + menuPro.Menu + "\n" + "학생식당 : " + menuStu + "\n") //+ "창업보육센터 : " + menuStartup + "\n")
 		}
 	}
 	return strings.Join(tokens, " ") + "....????"
