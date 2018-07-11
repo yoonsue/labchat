@@ -199,17 +199,13 @@ func msgFor(tokens []string) string {
 			return ("TIME : " + strtime + "\n TEMP : " + strconv.FormatFloat(float64(temp), 'g', -1, 64) + " C")
 		}
 		if tokens[1] == "menu" {
-			// menu := function.GetMenu("http://www.hanyang.ac.kr/web/www/-255")
-			// menuS := string(menu)
-			// menuC := function.GetMenuColly("http://www.hanyang.ac.kr/web/www/-254")
 			// 교직원식당
-			// menuPro := function.MenuGet("http://www.hanyang.ac.kr/web/www/-254")
-			menuPro := function.MenuGet("http://www.hanyang.ac.kr/web/www/-254?p_p_id=foodView_WAR_foodportlet&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view&p_p_col_id=column-1&p_p_col_pos=1&p_p_col_count=2&_foodView_WAR_foodportlet_sFoodDateDay=9&_foodView_WAR_foodportlet_sFoodDateYear=2018&_foodView_WAR_foodportlet_action=view&_foodView_WAR_foodportlet_sFoodDateMonth=6")
+			menuPro := function.MenuGet("http://www.hanyang.ac.kr/web/www/-254")
 			// 학생식당
-			menuStu := function.Scrap("http://www.hanyang.ac.kr/web/www/-254?p_p_id=foodView_WAR_foodportlet&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view&p_p_col_id=column-1&p_p_col_pos=1&p_p_col_count=2&_foodView_WAR_foodportlet_sFoodDateDay=9&_foodView_WAR_foodportlet_sFoodDateYear=2018&_foodView_WAR_foodportlet_action=view&_foodView_WAR_foodportlet_sFoodDateMonth=6") //http://www.hanyang.ac.kr/web/www/-255")
+			menuStu := function.MenuGet("http://www.hanyang.ac.kr/web/www/-255")
 			// 창업보육센터
-			// menuStartup := function.MenuGet("http://www.hanyang.ac.kr/web/www/-258")
-			return ("교직원식당 : " + menuPro.Menu + "\n" + "학생식당 : " + menuStu + "\n") //+ "창업보육센터 : " + menuStartup + "\n")
+			menuStartup := function.MenuGet("http://www.hanyang.ac.kr/web/www/-258")
+			return ("교직원식당 : " + menuPro.Menu + "\n" + "학생식당 : " + menuStu.Menu + "\n" + "창업보육센터 : " + menuStartup.Menu + "\n")
 		}
 	}
 	return strings.Join(tokens, " ") + "....????"
