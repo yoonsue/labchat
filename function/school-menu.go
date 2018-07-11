@@ -1,7 +1,6 @@
 package function
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/PuerkitoBio/goquery"
@@ -31,10 +30,8 @@ func scrapMenu(url string) string {
 		log.Println(errors.Wrap(err, "failed to get URL"))
 	}
 	doc.Find("#messhall1 div div div div ul li").Each(func(index int, item *goquery.Selection) {
-		// doc.Find("a img")
 		menu := item.Find("a img")
 		menuTitle, _ := menu.Attr("alt")
-		fmt.Printf("Post #%d: %s \n", index, menuTitle)
 		menuText += menuTitle + "\n"
 	})
 	return menuText

@@ -205,7 +205,7 @@ func msgFor(tokens []string) string {
 			menuStu := function.MenuGet("http://www.hanyang.ac.kr/web/www/-255")
 			// 창업보육센터
 			menuStartup := function.MenuGet("http://www.hanyang.ac.kr/web/www/-258")
-			return ("교직원식당 : " + menuPro.Menu + "\n" + "학생식당 : " + menuStu.Menu + "\n" + "창업보육센터 : " + menuStartup.Menu + "\n")
+			return ("\n==교직원식당==\n" + menuPro.Menu + "\n==학생식당==\n" + menuStu.Menu + "\n==창업보육센터==\n" + menuStartup.Menu)
 		}
 	}
 	return strings.Join(tokens, " ") + "....????"
