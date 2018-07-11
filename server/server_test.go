@@ -4,19 +4,33 @@ import (
 	"testing"
 )
 
-func TestServer(t *testing.T) {
-	// TODO: implementation.
-	// serverConfig := server.DefaultConfig()
-	// testserver, err := &Server{
-	// 	cfg: serverConfig,
-	// }, nil
+func TestMessageKey(t *testing.T) {
+	testCases := []struct {
+		key      string
+		expected string
+	}{
+		{
+			"hi",
+			"hello", // TestCase 1
+		},
+		{
+			"hello",
+			"hi",
+		},
+		{
+			"name",
+			"LABchat",
+		},
+		{
+			"no",
+			"none",
+		},
+	}
 
-	// testserver.Start()
-
-	// resp, err := http.Get("http://" + testserver + "/labchat/keyboard")
-	// if err != nil {
-	// 	// handle err
-	// 	t.Fatal(err)
-	// }
-	// defer resp.Body.Close()
+	for _, c := range testCases {
+		result := messageKey(c.key)
+		if result != c.expected {
+			t.Errorf("expected %s for key %s, got %s", c.expected, c.key, result)
+		}
+	}
 }
