@@ -20,8 +20,8 @@ func ServerCheck() model.ServerStatus {
 	return status
 }
 
-// cat /sys/class/thermal/thermal_zone*/temp
 // Got information here :https://www.kernel.org/doc/Documentation/thermal/sysfs-api.txt
+// /sys/class/thermal/thermal_zone*/temp
 
 // getTemp returns server temperature
 func getTemp() model.Temperature {
@@ -41,6 +41,7 @@ func getTemp() model.Temperature {
 	return temp
 }
 
+// getTime returns current time
 func getTime() time.Time {
 	time := time.Now()
 	//log.Println(time.Format("2006-01-02 15:04:05"))
