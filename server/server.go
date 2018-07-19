@@ -196,7 +196,7 @@ func msgFor(tokens []string) string {
 			time := status.TimeStamp
 			strtime := time.Format("2006-01-02 15:04:05 ")
 			temp := status.Temperature
-			return ("TIME : " + strtime + "\n TEMP : " + strconv.FormatFloat(float64(temp), 'g', -1, 64) + " C")
+			return ("TIME : " + strtime + "\nTEMP : " + strconv.FormatFloat(float64(temp), 'g', -1, 64) + " C")
 		}
 		if tokens[1] == "menu" {
 			// 교직원식당
