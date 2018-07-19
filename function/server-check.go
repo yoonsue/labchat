@@ -35,8 +35,7 @@ func getTemp() model.Temperature {
 	temp := model.Temperature(float32frombytes(data) / 1000)
 	if temp <= 0 {
 		log.Println("failed to get temperature")
-	} else {
-		log.Println(temp)
+		return -1
 	}
 	return temp
 }
@@ -44,7 +43,6 @@ func getTemp() model.Temperature {
 // getTime returns current time
 func getTime() time.Time {
 	time := time.Now()
-	//log.Println(time.Format("2006-01-02 15:04:05"))
 	return time
 }
 
