@@ -47,7 +47,7 @@ func TestMsgFor(t *testing.T) {
 		// },
 		{
 			strings.Fields("lab menu"),
-			"\n==교직원식당==\n", //TO BE IMPLEMENTED
+			"\n==교직원식당==\n",
 		},
 		{
 			strings.Fields("shit"),

@@ -40,35 +40,38 @@ func (s *Server) Start() {
 	go http.ListenAndServe(s.cfg.Address, nil)
 }
 
-//// Below stuctures are created following 'Kakao Api specifications'
+//// Below stuctures are created following 'Kakao API specifications'
 //// more information at 'https://github.com/plusfriend/auto_reply'
 
-// 'keyboard' contains information about buttons that are in the field keyboard
-// GET	http://your_server_url/keyboard
+// keyboard has type that two initial options (button or text)
 type keyboard struct {
 	Type    string   `json:"type"`
 	Buttons []string `json:"buttons"`
 }
 
-// 'message'
-// POST	http://your_server_url/message
+// message contains information about UserKey, Type and Content
 type message struct {
 	UserKey string `json:"user_key"`
 	Type    string `json:"type"`
 	Content string `json:"content"`
 }
 
-// response struct meaning
+// respText is used when response type is text
 type respText struct {
 	Text string `json:"text"`
 }
+
+// response contains Message for respText
 type response struct {
 	Message respText `json:"message"`
 }
+
+// user contains UserKey for user_key of message
 type user struct {
 	UserKey string `json:"user_key"`
 }
 
+// handleHTTP is requested handler of Kakao API (RESTful API)
 func handleHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Printf("received: %s\t %s\n", r.Method, html.EscapeString(r.URL.Path))
 
@@ -90,7 +93,7 @@ func handleHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//curl -XPOST 'https://:your_server_url/message' -d '{
+	// curl -XPOST 'https://:your_server_url/message' -d '{
 	//   "user_key": "encryptedUserKey",
 	//   "type": "text",
 	//   "content": "차량번호등록"
@@ -109,19 +112,12 @@ func handleHTTP(w http.ResponseWriter, r *http.Request) {
 			log.Println(errors.Wrap(err, "failed to unmarshal /message"))
 		}
 
-		// check mesKey exist
 		msgCon := messageKey(msg.Content)
 		// if there is no msgKey, return same msg
 		if msgCon == "none" {
 			msgCon = msg.Content
 		}
 
-		// response
-		// {
-		// 	"message":{
-		// 		"text" : "귀하의 차량이 성공적으로 등록되었습니다. 축하합니다!"
-		// 	}
-		// }
 		remsg := msgFor(strings.Fields(msgCon))
 		resp, err := json.Marshal(response{
 			Message: respText{
@@ -205,7 +201,9 @@ func msgFor(tokens []string) string {
 			menuStu := function.MenuGet("http://www.hanyang.ac.kr/web/www/-255")
 			// 창업보육센터
 			menuStartup := function.MenuGet("http://www.hanyang.ac.kr/web/www/-258")
-			return ("\n==교직원식당==\n" + menuPro.Menu + "\n==학생식당==\n" + menuStu.Menu + "\n==창업보육센터==\n" + menuStartup.Menu)
+			// 창의인재원식당
+			menuDorm := function.MenuGet("http://www.hanyang.ac.kr/web/www/-256")
+			return ("\n==교직원식당==\n" + menuPro.Menu + "\n==학생식당==\n" + menuStu.Menu + "\n==창업보육센터==\n" + menuStartup.Menu + "\n==창의인재원식당==\n" + menuDorm.Menu)
 		}
 	}
 	return strings.Join(tokens, " ") + "....????"
