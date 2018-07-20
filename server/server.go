@@ -34,7 +34,7 @@ func NewServer(cfg *Config) (srv *Server, err error) {
 // long-running server functionality should be implemented in goroutines.
 func (s *Server) Start() {
 	// TODO: implementation.
-	http.HandleFunc("/labchat/", handlehttp)
+	http.HandleFunc("/labchat/", handleHTTP)
 
 	// TODO: need to halt goroutine when the program is stopped.
 	go http.ListenAndServe(s.cfg.Address, nil)
@@ -59,17 +59,17 @@ type message struct {
 }
 
 // response struct meaning
-type resptext struct {
+type respText struct {
 	Text string `json:"text"`
 }
 type response struct {
-	Message resptext `json:"message"`
+	Message respText `json:"message"`
 }
 type user struct {
 	UserKey string `json:"user_key"`
 }
 
-func handlehttp(w http.ResponseWriter, r *http.Request) {
+func handleHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Printf("received: %s\t %s\n", r.Method, html.EscapeString(r.URL.Path))
 
 	// curl -XGET 'https://:your_server_url/keyboard'
@@ -124,7 +124,7 @@ func handlehttp(w http.ResponseWriter, r *http.Request) {
 		// }
 		remsg := msgFor(strings.Fields(msgCon))
 		resp, err := json.Marshal(response{
-			Message: resptext{
+			Message: respText{
 				Text: remsg}})
 		if err != nil {
 			log.Println(errors.Wrap(err, "failed to marshal response"))

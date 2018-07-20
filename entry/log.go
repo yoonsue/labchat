@@ -15,7 +15,7 @@ func setLog(logpath string) (file *os.File) {
 	return file
 }
 
-func cleanlog(logpath string) {
+func cleanLog(logpath string) {
 	file, err := os.OpenFile(logpath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)

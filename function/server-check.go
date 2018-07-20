@@ -32,7 +32,7 @@ func getTemp() model.Temperature {
 	}
 
 	// Unit: millidegree Celsius
-	temp := model.Temperature(float32frombytes(data) / 1000)
+	temp := model.Temperature(float32FromBytes(data) / 1000)
 	if temp <= 0 {
 		log.Println("failed to get temperature")
 		return -1
@@ -47,7 +47,7 @@ func getTime() time.Time {
 }
 
 // float64frombytes changes bytes to float64
-func float32frombytes(bytes []byte) float32 {
+func float32FromBytes(bytes []byte) float32 {
 	bits := binary.LittleEndian.Uint32(bytes)
 	float := math.Float32frombits(bits)
 	return float
