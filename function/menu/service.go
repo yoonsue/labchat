@@ -1,20 +1,28 @@
-package function
+package menu
 
 import (
 	"log"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/pkg/errors"
-	"github.com/yoonsue/labchat/model"
+	model "github.com/yoonsue/labchat/model/menu"
 )
+
+type Service interface {
+	GetSchool(url string) model.Menu
+}
+
+type service struct {
+	menus model.Repository
+}
 
 // URL1: http://www.hanyang.ac.kr/web/www/-255	학생식당
 // //*[@id="messhall1"]/div/div/div/div/ul/li/a/img
 // URL2: http://www.hanyang.ac.kr/web/www/-256	창의인재원식당
 // URL3: http://www.hanyang.ac.kr/web/www/-258	창업보육센터
 
-// MenuGet assigns menu to Menu model
-func MenuGet(url string) model.Menu {
+// GetSchool assigns menu to Menu model
+func (s *service) GetSchool(url string) model.Menu {
 	menu := model.Menu{}
 	// menu.Title := scrapMenu(url)
 	menu.Menu = scrapMenu(url)
@@ -34,4 +42,10 @@ func scrapMenu(url string) string {
 		menuText += menuTitle + "\n"
 	})
 	return menuText
+}
+
+func NewService(r model.Repository) Service {
+	return &service{
+		menus: r,
+	}
 }

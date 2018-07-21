@@ -10,7 +10,8 @@ import (
 
 func TestReadConfig(t *testing.T) {
 	yc := &yamlConfig{
-		Address: "localhost:2300",
+		Address:  "localhost:2300",
+		Database: "mongo",
 	}
 
 	tmpFile, err := ioutil.TempFile("", "client.cfg")

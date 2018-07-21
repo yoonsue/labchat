@@ -10,7 +10,8 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/yoonsue/labchat/function"
+	"github.com/yoonsue/labchat/function/menu"
+	"github.com/yoonsue/labchat/function/status"
 )
 
 // Address is for server address.
@@ -19,14 +20,16 @@ type Address string
 // Server provides http service for the labchat service.
 type Server struct {
 	// TODO: implementation.
-	cfg *Config
+	cfg         *Config
+	menuService menu.Service
 }
 
 // NewServer creates a new labchat server with the given configuration.
-func NewServer(cfg *Config) (srv *Server, err error) {
+func NewServer(cfg *Config, ms menu.Service) (srv *Server, err error) {
 	// TODO: implementation.
 	return &Server{
-		cfg: cfg,
+		cfg:         cfg,
+		menuService: ms,
 	}, nil
 }
 
@@ -34,7 +37,7 @@ func NewServer(cfg *Config) (srv *Server, err error) {
 // long-running server functionality should be implemented in goroutines.
 func (s *Server) Start() {
 	// TODO: implementation.
-	http.HandleFunc("/labchat/", handleHTTP)
+	http.HandleFunc("/labchat/", s.handleHTTP)
 
 	// TODO: need to halt goroutine when the program is stopped.
 	go http.ListenAndServe(s.cfg.Address, nil)
@@ -72,7 +75,7 @@ type user struct {
 }
 
 // handleHTTP is requested handler of Kakao API (RESTful API)
-func handleHTTP(w http.ResponseWriter, r *http.Request) {
+func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Printf("received: %s\t %s\n", r.Method, html.EscapeString(r.URL.Path))
 
 	// curl -XGET 'https://:your_server_url/keyboard'
@@ -118,7 +121,7 @@ func handleHTTP(w http.ResponseWriter, r *http.Request) {
 			msgCon = msg.Content
 		}
 
-		remsg := msgFor(strings.Fields(msgCon))
+		remsg := s.msgFor(strings.Fields(msgCon))
 		resp, err := json.Marshal(response{
 			Message: respText{
 				Text: remsg}})
@@ -180,7 +183,7 @@ func messageKey(rawmessage string) string {
 	return key
 }
 
-func msgFor(tokens []string) string {
+func (s *Server) msgFor(tokens []string) string {
 	// exec command
 	if tokens[0] == "lab" || tokens[0] == "Lab" || tokens[0] == "LAB" {
 		if len(tokens) < 2 {
@@ -188,21 +191,21 @@ func msgFor(tokens []string) string {
 		}
 		// TODO
 		if tokens[1] == "status" {
-			status := function.ServerCheck()
-			time := status.TimeStamp
+			s := status.ServerCheck()
+			time := s.TimeStamp
 			strtime := time.Format("2006-01-02 15:04:05 ")
-			temp := status.Temperature
+			temp := s.Temperature
 			return ("TIME : " + strtime + "\nTEMP : " + strconv.FormatFloat(float64(temp), 'g', -1, 64) + " C")
 		}
 		if tokens[1] == "menu" {
 			// 교직원식당
-			menuPro := function.MenuGet("http://www.hanyang.ac.kr/web/www/-254")
+			menuPro := s.menuService.GetSchool("http://www.hanyang.ac.kr/web/www/-254")
 			// 학생식당
-			menuStu := function.MenuGet("http://www.hanyang.ac.kr/web/www/-255")
+			menuStu := s.menuService.GetSchool("http://www.hanyang.ac.kr/web/www/-255")
 			// 창업보육센터
-			menuStartup := function.MenuGet("http://www.hanyang.ac.kr/web/www/-258")
+			menuStartup := s.menuService.GetSchool("http://www.hanyang.ac.kr/web/www/-258")
 			// 창의인재원식당
-			menuDorm := function.MenuGet("http://www.hanyang.ac.kr/web/www/-256")
+			menuDorm := s.menuService.GetSchool("http://www.hanyang.ac.kr/web/www/-256")
 			return ("\n==교직원식당==\n" + menuPro.Menu + "\n==학생식당==\n" + menuStu.Menu + "\n==창업보육센터==\n" + menuStartup.Menu + "\n==창의인재원식당==\n" + menuDorm.Menu)
 		}
 	}

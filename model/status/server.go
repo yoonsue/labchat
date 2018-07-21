@@ -1,11 +1,11 @@
-package model
+package status
 
 import (
 	"time"
 )
 
-// ServerStatus = VO
-type ServerStatus struct {
+// Server = VO
+type Server struct {
 	Temperature Temperature
 	TimeStamp   time.Time
 }
