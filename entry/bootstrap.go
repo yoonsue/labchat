@@ -7,6 +7,10 @@ import (
 	"syscall"
 
 	"github.com/pkg/errors"
+	menuFunction "github.com/yoonsue/labchat/function/menu"
+	menuModel "github.com/yoonsue/labchat/model/menu"
+	"github.com/yoonsue/labchat/repository/inmem"
+	"github.com/yoonsue/labchat/repository/mongo"
 	"github.com/yoonsue/labchat/server"
 )
 
@@ -30,11 +34,26 @@ func Bootstrap() {
 	}
 	log.Println("read configuration file")
 
+	var (
+		menus menuModel.Repository
+	)
+
+	if yamlConfig.Database == "inmem" {
+		menus = inmem.NewMenuRepository()
+	} else if yamlConfig.Database == "mongo" {
+		menus = mongo.NewMenuRepository()
+	} else {
+		log.Fatalf("unsupported database type: %s", yamlConfig.Database)
+	}
+
+	var ms menuFunction.Service
+	ms = menuFunction.NewService(menus)
+
 	serverConfig := server.DefaultConfig()
 	serverConfig.Address = yamlConfig.Address
 	log.Println("make server configuration")
 
-	labchat, err := server.NewServer(serverConfig)
+	labchat, err := server.NewServer(serverConfig, ms)
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "failed to create labchat server"))
 	}

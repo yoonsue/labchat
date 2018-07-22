@@ -9,7 +9,8 @@ import (
 // yamlConfig contains information for running labchat.
 // Read from the file: {config_path}/labchat.conf.yaml
 type yamlConfig struct {
-	Address string `json:"address"`
+	Address  string `json:"address"`
+	Database string `json:"database"`
 }
 
 // readConfig reads configuration from the configuration file.

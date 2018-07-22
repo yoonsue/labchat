@@ -1,4 +1,4 @@
-package function
+package status
 
 import (
 	"encoding/binary"
@@ -8,12 +8,12 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/yoonsue/labchat/model"
+	model "github.com/yoonsue/labchat/model/status"
 )
 
 // ServerCheck returns server status like temperature and request time
-func ServerCheck() model.ServerStatus {
-	status := model.ServerStatus{}
+func ServerCheck() model.Server {
+	status := model.Server{}
 	// Access somewhere to get status..
 	status.Temperature = getTemp()
 	status.TimeStamp = getTime()

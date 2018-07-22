@@ -2,3 +2,6 @@
 
 # Address of the labchat service.
 address: localhost:4748
+
+# Which database is used for labchat service.
+Database: inmem
