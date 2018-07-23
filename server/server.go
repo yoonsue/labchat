@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -191,11 +190,7 @@ func (s *Server) msgFor(tokens []string) string {
 		}
 		// TODO
 		if tokens[1] == "status" {
-			s := status.ServerCheck()
-			time := s.TimeStamp
-			strtime := time.Format("2006-01-02 15:04:05 ")
-			temp := s.Temperature
-			return ("TIME : " + strtime + "\nTEMP : " + strconv.FormatFloat(float64(temp), 'g', -1, 64) + " C")
+			return status.ServerCheck().String()
 		}
 		if tokens[1] == "menu" {
 			// 교직원식당
