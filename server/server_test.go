@@ -42,15 +42,15 @@ func TestMessageKey(t *testing.T) {
 // 	}{
 // 		// {
 // 		// 	strings.Fields("lab status"),
-// 		// 	"TIME : ", //TO BE IMPLEMENTED
+// 		// 	"TIME : ", //TO BE IMPLEMENTED there is no tmp repository in travis CI
 // 		// },
 // 		{
 // 			strings.Fields("lab menu"),
 // 			"\n==교직원식당==\n",
 // 		},
 // 		{
-// 			strings.Fields("shit"),
-// 			"shit....????",
+// 			strings.Fields("hello"),
+// 			"hello....????",
 // 		},
 // 	}
 
