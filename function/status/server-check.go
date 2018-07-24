@@ -12,12 +12,11 @@ import (
 )
 
 // ServerCheck returns server status like temperature and request time
-func ServerCheck() model.Server {
-	status := model.Server{}
-	// Access somewhere to get status..
-	status.Temperature = getTemp()
-	status.TimeStamp = getTime()
-	return status
+func ServerCheck() *model.Server {
+	return &model.Server{
+		Temperature: getTemp(),
+		TimeStamp:   getTime(),
+	}
 }
 
 // Got information here :https://www.kernel.org/doc/Documentation/thermal/sysfs-api.txt
@@ -42,8 +41,7 @@ func getTemp() model.Temperature {
 
 // getTime returns current time
 func getTime() time.Time {
-	time := time.Now()
-	return time
+	return time.Now()
 }
 
 // float64frombytes changes bytes to float64
