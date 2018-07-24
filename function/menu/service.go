@@ -8,6 +8,7 @@ import (
 	model "github.com/yoonsue/labchat/model/menu"
 )
 
+// Service declares the methods that menu service provides.
 type Service interface {
 	GetSchool(url string) model.Menu
 }
@@ -44,6 +45,7 @@ func scrapMenu(url string) string {
 	return menuText
 }
 
+// NewService
 func NewService(r model.Repository) Service {
 	return &service{
 		menus: r,

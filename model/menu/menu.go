@@ -6,4 +6,5 @@ type Menu struct {
 	Menu  string
 }
 
+// Repository declares the methods that repository provides.
 type Repository interface{}
