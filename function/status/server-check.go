@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"math"
-	"time"
 
 	"github.com/pkg/errors"
 	model "github.com/yoonsue/labchat/model/status"
@@ -13,10 +12,9 @@ import (
 
 // ServerCheck returns server status like temperature and request time
 func ServerCheck() *model.Server {
-	return &model.Server{
-		Temperature: getTemp(),
-		TimeStamp:   getTime(),
-	}
+	s := model.NewServer()
+	s.Temperature = getTemp()
+	return s
 }
 
 // Got information here :https://www.kernel.org/doc/Documentation/thermal/sysfs-api.txt
@@ -37,11 +35,6 @@ func getTemp() model.Temperature {
 		return -1
 	}
 	return temp
-}
-
-// getTime returns current time
-func getTime() time.Time {
-	return time.Now()
 }
 
 // float64frombytes changes bytes to float64

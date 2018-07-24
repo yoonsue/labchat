@@ -45,7 +45,7 @@ func scrapMenu(url string) string {
 	return menuText
 }
 
-// NewService
+// NewService return struct which provides Service interface
 func NewService(r model.Repository) Service {
 	return &service{
 		menus: r,

@@ -5,20 +5,24 @@ import (
 	"time"
 )
 
+const timeFormat string = "2006-01-02 15:04:05 "
+
 // Server = VO
 type Server struct {
 	Temperature Temperature
-	TimeStamp   time.Time
+	timeStamp   string
 }
 
-const timeFormat string = "2006-01-02 15:04:05 "
+// Time returns the time of checking server request.
+func (s Server) Time() string {
+	return s.timeStamp
+}
 
-// String returns the formatted string of server status information.
-func (s Server) String() string {
-	str := "TIME : " + s.TimeStamp.Format(timeFormat)
-	str = str + "\n"
-	str = "TEMP : " + s.Temperature.String()
-	return str
+// NewServer fixes the timestamp when the request is arrived.
+func NewServer() *Server {
+	return &Server{
+		timeStamp: time.Now().Format(timeFormat),
+	}
 }
 
 // Temperature = VO

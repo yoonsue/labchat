@@ -4,10 +4,10 @@ import (
 	"github.com/yoonsue/labchat/model/menu"
 )
 
-// MenuRepository
+// MenuRepository struct definition
 type MenuRepository struct{}
 
-// NewMenuRepository
+// NewMenuRepository does several services according to MongoDB
 func NewMenuRepository() menu.Repository {
 	return &MenuRepository{}
 }

@@ -190,7 +190,13 @@ func (s *Server) msgFor(tokens []string) string {
 		}
 		// TODO
 		if tokens[1] == "status" {
-			return status.ServerCheck().String()
+			c := status.ServerCheck()
+
+			str := "TIME : " + c.Time()
+			str = str + "\n"
+			str = str + "TEMP : " + c.Temperature.String()
+
+			return str
 		}
 		if tokens[1] == "menu" {
 			// 교직원식당
