@@ -18,20 +18,20 @@ func ServerCheck() *model.Server {
 }
 
 // Got information here :https://www.kernel.org/doc/Documentation/thermal/sysfs-api.txt
-// /sys/class/thermal/thermal_zone*/temp
+const temperatureFile = "/sys/class/thermal/thermal_zone0/temp"
 
 // getTemp returns server temperature
 func getTemp() model.Temperature {
-	data, err := ioutil.ReadFile("/sys/class/thermal/thermal_zone0/temp")
+	data, err := ioutil.ReadFile(temperatureFile)
 	if err != nil {
-		log.Println(errors.Wrap(err, "failed to get temperature"))
-		data = nil
+		log.Println(errors.Wrap(err, "failed to read temperature file"))
+		return -1
 	}
 
 	// Unit: millidegree Celsius
 	temp := model.Temperature(float32FromBytes(data) / 1000)
 	if temp <= 0 {
-		log.Println("failed to get temperature")
+		log.Printf("temperature is lower than zero: %s\n", temp.String())
 		return -1
 	}
 	return temp
