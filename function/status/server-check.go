@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"log"
 	"math"
+	"strconv"
+	"strings"
 
 	"github.com/pkg/errors"
 	model "github.com/yoonsue/labchat/model/status"
@@ -28,8 +30,14 @@ func getTemp() model.Temperature {
 		return -1
 	}
 
+	// TO BE IMPLEMENTED : HOW TO DEAL WITH 'linebreak'
+	fileAsString := string(data)
+	fileLines := strings.Split(fileAsString, "\n")
+	fileAsInt, _ := strconv.Atoi(fileLines[0])
+
 	// Unit: millidegree Celsius
-	temp := model.Temperature(float32FromBytes(data) / 1000)
+	temp := model.Temperature(fileAsInt / 1000)
+
 	if temp <= 0 {
 		log.Printf("temperature is lower than zero: %s\n", temp.String())
 		return -1
@@ -37,7 +45,7 @@ func getTemp() model.Temperature {
 	return temp
 }
 
-// float64frombytes changes bytes to float64
+// float32frombytes changes bytes to float32
 func float32FromBytes(bytes []byte) float32 {
 	bits := binary.LittleEndian.Uint32(bytes)
 	float := math.Float32frombits(bits)
