@@ -37,19 +37,19 @@ func TestMessageKey(t *testing.T) {
 
 // func TestMsgFor(t *testing.T) {
 // 	testCases := []struct {
-// 		input    []string
+// 		input    string
 // 		expected string
 // 	}{
-// 		// {
-// 		// 	strings.Fields("lab status"),
-// 		// 	"TIME : ", //TO BE IMPLEMENTED there is no tmp repository in travis CI
-// 		// },
 // 		{
-// 			strings.Fields("lab menu"),
+// 			"status",
+// 			"TIME : ",
+// 		},
+// 		{
+// 			"menu",
 // 			"\n==교직원식당==\n",
 // 		},
 // 		{
-// 			strings.Fields("hello"),
+// 			"hello",
 // 			"hello....????",
 // 		},
 // 	}

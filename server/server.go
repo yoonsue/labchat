@@ -115,12 +115,12 @@ func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		msgCon := messageKey(msg.Content)
-		// if there is no msgKey, return same msg
+		// if there is no msgCon, return same msg
 		if msgCon == "none" {
 			msgCon = msg.Content
 		}
 
-		remsg := s.msgFor(strings.Fields(msgCon))
+		remsg := s.msgFor(msgCon)
 		resp, err := json.Marshal(response{
 			Message: respText{
 				Text: remsg}})
@@ -182,33 +182,27 @@ func messageKey(rawmessage string) string {
 	return key
 }
 
-func (s *Server) msgFor(tokens []string) string {
-	// exec command
-	if tokens[0] == "lab" || tokens[0] == "Lab" || tokens[0] == "LAB" {
-		if len(tokens) < 2 {
-			return "no command"
-		}
-		// TODO
-		if tokens[1] == "status" {
-			c := status.ServerCheck()
+// menuURLMap
+var menuURLMap = map[string]string{"교직원식당": "http://www.hanyang.ac.kr/web/www/-254", "학생식당": "http://www.hanyang.ac.kr/web/www/-255", "창업보육센터": "http://www.hanyang.ac.kr/web/www/-258", "창의인재원식당": "http://www.hanyang.ac.kr/web/www/-256"}
 
-			str := "TIME : " + c.Time()
-			str = str + "\n"
-			str = str + "TEMP : " + c.Temperature.String()
+func (s *Server) msgFor(request string) string {
+	if request == "status" {
+		c := status.ServerCheck()
 
-			return str
-		}
-		if tokens[1] == "menu" {
-			// 교직원식당
-			menuPro := s.menuService.GetSchool("http://www.hanyang.ac.kr/web/www/-254")
-			// 학생식당
-			menuStu := s.menuService.GetSchool("http://www.hanyang.ac.kr/web/www/-255")
-			// 창업보육센터
-			menuStartup := s.menuService.GetSchool("http://www.hanyang.ac.kr/web/www/-258")
-			// 창의인재원식당
-			menuDorm := s.menuService.GetSchool("http://www.hanyang.ac.kr/web/www/-256")
-			return ("\n==교직원식당==\n" + menuPro.Menu + "\n==학생식당==\n" + menuStu.Menu + "\n==창업보육센터==\n" + menuStartup.Menu + "\n==창의인재원식당==\n" + menuDorm.Menu)
-		}
+		str := "TIME : " + c.Time()
+		str = str + "\n"
+		str = str + "TEMP : " + c.Temperature.String()
+
+		return str
 	}
-	return strings.Join(tokens, " ") + "....????"
+	if request == "menu" {
+		str := ""
+		for restaurant, menuURL := range menuURLMap {
+			str += "\n==" + restaurant + "==\n"
+			menuRest := s.menuService.GetSchool(menuURL)
+			str += menuRest.Menu
+		}
+		return str
+	}
+	return request + "....????"
 }
