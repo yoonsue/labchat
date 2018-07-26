@@ -1,10 +1,8 @@
 package status
 
 import (
-	"encoding/binary"
 	"io/ioutil"
 	"log"
-	"math"
 	"strconv"
 	"strings"
 
@@ -43,11 +41,4 @@ func getTemp() model.Temperature {
 		return -1
 	}
 	return temp
-}
-
-// float32frombytes changes bytes to float32
-func float32FromBytes(bytes []byte) float32 {
-	bits := binary.LittleEndian.Uint32(bytes)
-	float := math.Float32frombits(bits)
-	return float
 }
