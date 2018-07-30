@@ -1,9 +1,6 @@
 package inmem
 
-import (
-	"github.com/garyburd/redigo/redis"
-	"github.com/yoonsue/labchat/model/menu"
-)
+import "github.com/yoonsue/labchat/model/menu"
 
 // MenuRepository struct definition
 type MenuRepository struct {
@@ -11,97 +8,34 @@ type MenuRepository struct {
 	value []string
 }
 
-// // Menus ...
-// type Menus []string
-
-// NewMenuRepository does several services according to InMemoryDB
+// NewMenuRepository does several services according to Go Map
 func NewMenuRepository() menu.Repository {
-	return &MenuRepository{
-		key:   "",
-		value: []string{""},
-	}
+	return &MenuRepository{}
 }
 
-func newPool() *redis.Pool {
-	return &redis.Pool{
-		MaxIdle:   80,
-		MaxActive: 12000,
-		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial("tcp", ":6379")
-			if err != nil {
-				panic(err.Error())
-			}
-			return c, err
-		},
-	}
+// menuURLMap
+var menuURLMap = map[string]string{
+	"교직원식당":   "http://www.hanyang.ac.kr/web/www/-254",
+	"학생식당":    "http://www.hanyang.ac.kr/web/www/-255",
+	"창업보육센터":  "http://www.hanyang.ac.kr/web/www/-258",
+	"창의인재원식당": "http://www.hanyang.ac.kr/web/www/-256",
 }
 
-var pool = newPool()
-
-func setCli(key string, value string) {
-	c := pool.Get()
-	c.Send("SET", key, value)
-	_, err := c.Receive()
-	if err != nil {
-		panic(err.Error())
-	}
+var menuMap = map[string]string{
+	"창의인재원":  "",
+	"학생식당":   "",
+	"교직원식당":  "",
+	"창업보육센터": "",
 }
 
-func getCli(key string) (value interface{}) {
-	c := pool.Get()
-	c.Send("GET", key)
-	r, err := c.Receive()
-	if err != nil {
-		panic(err.Error())
-	}
-	return r
+func menuSave(title string, menu string) {
+	menuMap[title] = menu
 }
 
-// ///////////////////////////////////////////////////////////
-// var client *redisA.Client
-
-// func init() {
-// 	client = redisA.NewClient(&redisA.Options{
-// 		Addr:         ":6379",
-// 		DialTimeout:  10 * time.Second,
-// 		ReadTimeout:  10 * time.Second,
-// 		WriteTimeout: 10 * time.Second,
-// 		PoolSize:     10,
-// 		PoolTimeout:  10 * time.Second,
-// 	})
-// 	client.FlushDB()
-// }
-
-// // Client ...
-// type Client struct {
-// 	// contains filtered or unexported fields
-
-// }
-
-// // ExampleNewClient ...
-// func ExampleNewClient() {
-// 	client := redisA.NewClient(&redisA.Options{
-// 		Addr:     "localhost:6379",
-// 		Password: "",
-// 		DB:       0,
-// 	})
-// 	pong, err := client.Ping().Result()
-// 	fmt.Println(pong, err)
-// }
-
-// // ExampleClient ...
-// func ExampleClient(cafeteria string, menuList []string) {
-// 	for _, menu := range menuList {
-// 		err := client.Set(cafeteria, menu, 0).Err()
-// 		if err != nil {
-// 			panic(err)
-// 		}
-// 	}
-
-// 	val, err := client.Get(cafeteria).Result()
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	fmt.Println(cafeteria, ": ", val)
-
-// }
+func menuRead(title string) string {
+	val, exists := menuMap[title]
+	if !exists {
+		println("No '", title, "' exists")
+	}
+	return val
+}

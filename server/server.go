@@ -183,7 +183,8 @@ func messageKey(rawmessage string) string {
 }
 
 // menuURLMap
-var menuURLMap = map[string]string{"교직원식당": "http://www.hanyang.ac.kr/web/www/-254", "학생식당": "http://www.hanyang.ac.kr/web/www/-255", "창업보육센터": "http://www.hanyang.ac.kr/web/www/-258", "창의인재원식당": "http://www.hanyang.ac.kr/web/www/-256"}
+// var menuURLMap = map[string]string{"교직원식당": "http://www.hanyang.ac.kr/web/www/-254", "학생식당": "http://www.hanyang.ac.kr/web/www/-255", "창업보육센터": "http://www.hanyang.ac.kr/web/www/-258", "창의인재원식당": "http://www.hanyang.ac.kr/web/www/-256"}
+var menuURLMap = []string{"http://www.hanyang.ac.kr/web/www/-254", "http://www.hanyang.ac.kr/web/www/-255", "http://www.hanyang.ac.kr/web/www/-258", "http://www.hanyang.ac.kr/web/www/-256"}
 
 func (s *Server) msgFor(request string) string {
 	if request == "status" {
@@ -197,10 +198,12 @@ func (s *Server) msgFor(request string) string {
 	}
 	if request == "menu" {
 		str := ""
-		for restaurant, menuURL := range menuURLMap {
-			str += "\n==" + restaurant + "==\n"
+		for _, menuURL := range menuURLMap {
 			menuRest := s.menuService.GetSchool(menuURL)
+			str += menuRest.Title
+			str += "\n"
 			str += menuRest.Menu
+			str += "\n\n"
 		}
 		return str
 	}

@@ -26,24 +26,28 @@ type service struct {
 func (s *service) GetSchool(url string) model.Menu {
 	menu := model.Menu{}
 	// menu.Title := scrapMenu(url)
-	menu.Menu = scrapMenu(url)
+	menu.Title, menu.Menu = scrapMenu(url)
 	return menu
 }
 
 // scrapMenu gets menu from the URL
-func scrapMenu(url string) string {
+func scrapMenu(url string) (string, string) {
 	var menuText = ""
 	doc, err := goquery.NewDocument(url)
 	if err != nil {
 		log.Println(errors.Wrap(err, "failed to get URL"))
 	}
+
+	restTitle := doc.Find("#content div.contents-box div.title-top div h3").Text()
 	doc.Find("#messhall1 div div div div ul li").Each(func(index int, item *goquery.Selection) {
 		menu := item.Find("a img")
 		menuTitle, _ := menu.Attr("alt")
 		menuText += menuTitle + "\n"
 	})
-	return menuText
+	return restTitle, menuText
 }
+
+// #content > div.contents-box.container > div.contents-title-arrow.title-top.sub > div > h3
 
 // NewService return struct which provides Service interface
 func NewService(r model.Repository) Service {
