@@ -1,16 +1,39 @@
 package inmem
 
-import "github.com/yoonsue/labchat/model/menu"
+import (
+	"fmt"
+	"sync"
+
+	"github.com/yoonsue/labchat/model/menu"
+)
 
 // MenuRepository struct definition
 type MenuRepository struct {
-	key   string
-	value []string
+	mtx     sync.RWMutex
+	menuMap map[menu.Restaurant]menu.TodayMenu
 }
 
 // NewMenuRepository does several services according to Go Map
 func NewMenuRepository() menu.Repository {
-	return &MenuRepository{}
+	return &MenuRepository{
+		menuMap: make(map[menu.Restaurant]menu.TodayMenu),
+	}
+}
+
+// Store ..
+func (r *MenuRepository) Store(target menu.Menu) error {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+	r.menuMap[target.Restaurant] = target.TodayMenu
+	return nil
+}
+
+// Find ..
+func (r *MenuRepository) Find(rest menu.Restaurant) (menu.TodayMenu, error) {
+	if val, exists := r.menuMap[rest]; exists {
+		return val, nil
+	}
+	return "none", nil
 }
 
 // menuURLMap
@@ -38,4 +61,16 @@ func menuRead(title string) string {
 		println("No '", title, "' exists")
 	}
 	return val
+}
+
+func allMenu() string {
+	str := ""
+	for key := range menuMap {
+		str += key
+		str += "\t"
+		str += menuMap[key]
+		str += "\n"
+		fmt.Printf("key: %s\tvalue: %s", key, menuMap[key])
+	}
+	return str
 }
