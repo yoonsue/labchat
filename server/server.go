@@ -200,9 +200,9 @@ func (s *Server) msgFor(request string) string {
 		str := ""
 		for _, menuURL := range menuURLMap {
 			menuRest := s.menuService.GetSchool(menuURL)
-			str += menuRest.Title
+			str += string(menuRest.Restaurant)
 			str += "\n"
-			str += menuRest.Menu
+			str += string(menuRest.TodayMenu)
 			str += "\n\n"
 		}
 		return str

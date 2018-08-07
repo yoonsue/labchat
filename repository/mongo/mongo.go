@@ -11,3 +11,13 @@ type MenuRepository struct{}
 func NewMenuRepository() menu.Repository {
 	return &MenuRepository{}
 }
+
+// Store saves menu model in memory.
+func (r *MenuRepository) Store(target menu.Menu) error {
+	return nil
+}
+
+// Find returns today's menus that match with the given restaurant.
+func (r *MenuRepository) Find(rest menu.Restaurant) (menu.TodayMenu, error) {
+	return "none", nil
+}

@@ -25,14 +25,15 @@ type service struct {
 // GetSchool assigns menu to Menu model
 func (s *service) GetSchool(url string) model.Menu {
 	menu := model.Menu{}
-	// menu.Title := scrapMenu(url)
-	menu.Title, menu.Menu = scrapMenu(url)
+	restText, menuText := scrapMenu(url)
+	menu.Restaurant = model.Restaurant(restText)
+	menu.TodayMenu = model.TodayMenu(menuText)
 	return menu
 }
 
 // scrapMenu gets menu from the URL
 func scrapMenu(url string) (string, string) {
-	var menuText = ""
+	menuText := ""
 	doc, err := goquery.NewDocument(url)
 	if err != nil {
 		log.Println(errors.Wrap(err, "failed to get URL"))
