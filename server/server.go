@@ -36,7 +36,7 @@ func NewServer(cfg *Config, ms menu.Service) (srv *Server, err error) {
 // long-running server functionality should be implemented in goroutines.
 func (s *Server) Start() {
 	// TODO: implementation.
-	http.HandleFunc("/labchat/", s.handleHTTP)
+	http.HandleFunc("/", s.handleHTTP)
 
 	// TODO: need to halt goroutine when the program is stopped.
 	go http.ListenAndServe(s.cfg.Address, nil)
@@ -78,7 +78,7 @@ func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Printf("received: %s\t %s\n", r.Method, html.EscapeString(r.URL.Path))
 
 	// curl -XGET 'https://:your_server_url/keyboard'
-	if r.Method == "GET" && r.URL.Path == "/labchat/keyboard" {
+	if r.Method == "GET" && r.URL.Path == "/keyboard" {
 		// CASE1 Type: 'text'
 		initkeyboard := keyboard{Type: "text"}
 
@@ -100,7 +100,7 @@ func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
 	//   "type": "text",
 	//   "content": "차량번호등록"
 	// }'
-	if r.Method == "POST" && r.URL.Path == "/labchat/message" {
+	if r.Method == "POST" && r.URL.Path == "/message" {
 		body, err := ioutil.ReadAll(r.Body)
 		r.Body.Close()
 		if err != nil {
@@ -134,7 +134,7 @@ func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// friend information
 	// curl -XPOST 'https://:your_server_url/friend' -d '{"user_key" : "HASHED_USER_KEY" }'
-	if r.Method == "POST" && r.URL.Path == "/labchat/friend" {
+	if r.Method == "POST" && r.URL.Path == "/friend" {
 		body, err := ioutil.ReadAll(r.Body)
 		r.Body.Close()
 		if err != nil {
@@ -155,13 +155,13 @@ func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
 
 		// chatroom delete by admin
 		// curl -XDELETE 'https://:your_server_url/chat_room/HASHED_USER_KEY'
-		if split[0] == "/labchat/friend/" {
+		if split[0] == "/friend/" {
 			log.Printf("user %s deleted", split[1])
 		}
 
 		// chatroom deleted by user
 		// DELETE	http://:your_server_url/chat_room/:user_key
-		if split[0] == "/labchat/chat_room/" {
+		if split[0] == "/chat_room/" {
 			log.Printf("user %s leaved", split[2])
 		}
 		return
