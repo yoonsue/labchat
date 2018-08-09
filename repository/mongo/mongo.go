@@ -18,6 +18,7 @@ func (r *MenuRepository) Store(target menu.Menu) error {
 }
 
 // Find returns today's menus that match with the given restaurant.
-func (r *MenuRepository) Find(rest menu.Restaurant) (menu.TodayMenu, error) {
-	return "none", nil
+func (r *MenuRepository) Find(rest menu.Restaurant) (menu.Menu, error) {
+	menu := menu.Menu{}
+	return menu, nil
 }

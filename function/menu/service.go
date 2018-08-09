@@ -28,7 +28,12 @@ func (s *service) GetSchool(url string) model.Menu {
 	restText, menuText := scrapMenu(url)
 	menu.Restaurant = model.Restaurant(restText)
 	menu.TodayMenu = model.TodayMenu(menuText)
-	return menu
+	s.menus.Store(menu)
+	resMenu, err := s.menus.Find(menu.Restaurant)
+	if err != nil {
+		log.Println(errors.Wrap(err, "failed to find menu in menuMap"))
+	}
+	return resMenu
 }
 
 // scrapMenu gets menu from the URL
