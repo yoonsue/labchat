@@ -14,6 +14,6 @@ type TodayMenu string
 
 // Repository declares the methods that repository provides.
 type Repository interface {
-	Find(key Restaurant) (Menu, error)
-	Store(key Menu) error
+	Find(key Restaurant) (*Menu, error)
+	Store(key *Menu) error
 }

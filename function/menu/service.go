@@ -10,7 +10,7 @@ import (
 
 // Service declares the methods that menu service provides.
 type Service interface {
-	GetSchool(url string) model.Menu
+	GetSchool(url string) *model.Menu
 }
 
 type service struct {
@@ -23,12 +23,12 @@ type service struct {
 // URL3: http://www.hanyang.ac.kr/web/www/-258	창업보육센터
 
 // GetSchool assigns menu to Menu model
-func (s *service) GetSchool(url string) model.Menu {
+func (s *service) GetSchool(url string) *model.Menu {
 	menu := model.Menu{}
 	restText, menuText := scrapMenu(url)
 	menu.Restaurant = model.Restaurant(restText)
 	menu.TodayMenu = model.TodayMenu(menuText)
-	s.menus.Store(menu)
+	s.menus.Store(&menu)
 	resMenu, err := s.menus.Find(menu.Restaurant)
 	if err != nil {
 		log.Println(errors.Wrap(err, "failed to find menu in menuMap"))

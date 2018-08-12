@@ -14,10 +14,9 @@ before_script:
   - go get -u github.com/golang/lint/golint
   - go get -u github.com/golang/dep/cmd/dep		# dependency check -> dep init
   - go get -u github.com/PuerkitoBio/goquery
-  # - go get -u github.com/go-redis/redis
-  - go get -u github.com/garyburd/redigo/redis
-  - dep ensure					
-	
+  - go get -u gopkg.in/mgo.v2/bson
+  - go get -u gopkg.in/mgo.v2
+  - dep ensure
 
 script:
   - test -z $(gofmt -s -l $GO_FILES)

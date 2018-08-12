@@ -11,6 +11,7 @@ import (
 type yamlConfig struct {
 	Address  string `json:"address"`
 	Database string `json:"database"`
+	DBURL    string `json:"DBURL"`
 }
 
 // readConfig reads configuration from the configuration file.

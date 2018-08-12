@@ -6,6 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"gopkg.in/mgo.v2"
+
 	"github.com/pkg/errors"
 	menuFunction "github.com/yoonsue/labchat/function/menu"
 	menuModel "github.com/yoonsue/labchat/model/menu"
@@ -19,6 +21,7 @@ import (
 // TODO: allow to change configuration file path by command-line interface.
 const defaultConfigPath = "./labchat.conf.yaml"
 const defaultLogPath = "./labchat.log"
+const defaultMongoDBURL = "127.0.0.1"
 
 // Bootstrap is the entry point for running the labchat server.
 // It generates the necessary configuration files and creates the components
@@ -41,7 +44,13 @@ func Bootstrap() {
 	if yamlConfig.Database == "inmem" {
 		menus = inmem.NewMenuRepository()
 	} else if yamlConfig.Database == "mongo" {
-		menus = mongo.NewMenuRepository()
+		session, err := mgo.Dial(yamlConfig.DBURL)
+		if err != nil {
+			log.Fatal(errors.Wrap(err, "failed to read configuration file"))
+		}
+		defer session.Close()
+		session.SetMode(mgo.Monotonic, true)
+		menus, _ = mongo.NewMenuRepository("mongo", session)
 	} else {
 		log.Fatalf("unsupported database type: %s", yamlConfig.Database)
 	}

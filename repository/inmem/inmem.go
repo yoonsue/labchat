@@ -9,18 +9,18 @@ import (
 // MenuRepository struct definition.
 type MenuRepository struct {
 	mtx     sync.RWMutex
-	menuMap map[menu.Restaurant]menu.Menu
+	menuMap map[menu.Restaurant]*menu.Menu
 }
 
 // NewMenuRepository return a new instance of in-memory menu repository.
 func NewMenuRepository() menu.Repository {
 	return &MenuRepository{
-		menuMap: make(map[menu.Restaurant]menu.Menu),
+		menuMap: make(map[menu.Restaurant]*menu.Menu),
 	}
 }
 
 // Store saves menu model in memory.
-func (r *MenuRepository) Store(target menu.Menu) error {
+func (r *MenuRepository) Store(target *menu.Menu) error {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
 	r.menuMap[target.Restaurant] = target
@@ -28,23 +28,22 @@ func (r *MenuRepository) Store(target menu.Menu) error {
 }
 
 // Find returns today's menus that match with the given restaurant.
-func (r *MenuRepository) Find(rest menu.Restaurant) (menu.Menu, error) {
-	menu := menu.Menu{}
+func (r *MenuRepository) Find(rest menu.Restaurant) (*menu.Menu, error) {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
 	if menu, exists := r.menuMap[rest]; exists {
 		return menu, nil
 	}
-	return menu, nil
+	return nil, nil
 }
 
 // FindAll returns all menus that were stored in memory.
-func (r *MenuRepository) FindAll() map[menu.Restaurant]menu.Menu {
+func (r *MenuRepository) FindAll() []*menu.Menu {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
-	c := make(map[menu.Restaurant]menu.Menu)
-	for key, val := range r.menuMap {
-		c[key] = val
+	c := make([]*menu.Menu, 0, len(r.menuMap))
+	for _, val := range r.menuMap {
+		c = append(c, val)
 	}
 	return c
 }

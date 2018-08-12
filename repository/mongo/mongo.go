@@ -14,13 +14,34 @@ type MenuRepository struct {
 }
 
 // NewMenuRepository does several services according to MongoDB
-func NewMenuRepository() menu.Repository {
-	return &MenuRepository{}
+func NewMenuRepository(db string, session *mgo.Session) (menu.Repository, error) {
+	r := &MenuRepository{
+		db:      db,
+		session: session,
+	}
+
+	index := mgo.Index{
+		Key:        []string{"Restaurant"},
+		Unique:     true,
+		DropDups:   true,
+		Background: true,
+		Sparse:     true,
+	}
+
+	sess := r.session.Copy()
+	defer sess.Close()
+
+	c := sess.DB(r.db).C("menu")
+
+	if err := c.EnsureIndex(index); err != nil {
+		return nil, err
+	}
+	return r, nil
 }
 
 // Store saves menu model in memory.
-func (r *MenuRepository) Store(target menu.Menu) error {
-	sess := r.session.Clone()
+func (r *MenuRepository) Store(target *menu.Menu) error {
+	sess := r.session.Copy()
 	defer sess.Close()
 
 	c := sess.DB(r.db).C("menu")
@@ -31,7 +52,7 @@ func (r *MenuRepository) Store(target menu.Menu) error {
 }
 
 // Find returns today's menus that match with the given restaurant.
-func (r *MenuRepository) Find(rest menu.Restaurant) (menu.Menu, error) {
+func (r *MenuRepository) Find(rest menu.Restaurant) (*menu.Menu, error) {
 	sess := r.session.Copy()
 	defer sess.Close()
 
@@ -40,9 +61,9 @@ func (r *MenuRepository) Find(rest menu.Restaurant) (menu.Menu, error) {
 	menu := menu.Menu{}
 	if err := c.Find(bson.M{"Restaurant": rest}).One(&menu); err != nil {
 		if err == mgo.ErrNotFound {
-			return menu, err
+			return nil, err
 		}
-		return menu, err
+		return nil, err
 	}
-	return menu, nil
+	return &menu, nil
 }
