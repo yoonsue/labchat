@@ -20,7 +20,7 @@ func NewMenuRepository() menu.Repository {
 
 // Store saves menu model in memory.
 func (r *MenuRepository) Store(target menu.Menu) error {
-	sess := r.session.Copy()
+	sess := r.session.Clone()
 	defer sess.Close()
 
 	c := sess.DB(r.db).C("menu")
