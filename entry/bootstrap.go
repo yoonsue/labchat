@@ -21,7 +21,6 @@ import (
 // TODO: allow to change configuration file path by command-line interface.
 const defaultConfigPath = "./labchat.conf.yaml"
 const defaultLogPath = "./labchat.log"
-const defaultMongoDBURL = "127.0.0.1"
 
 // Bootstrap is the entry point for running the labchat server.
 // It generates the necessary configuration files and creates the components
@@ -46,11 +45,12 @@ func Bootstrap() {
 	} else if yamlConfig.Database == "mongo" {
 		session, err := mgo.Dial(yamlConfig.DBURL)
 		if err != nil {
-			log.Fatal(errors.Wrap(err, "failed to read configuration file"))
+			log.Fatal(errors.Wrap(err, "failed to establish MongoDB session"))
 		}
 		defer session.Close()
 		session.SetMode(mgo.Monotonic, true)
 		menus, _ = mongo.NewMenuRepository("mongo", session)
+		log.Println("create the mongoDB session")
 	} else {
 		log.Fatalf("unsupported database type: %s", yamlConfig.Database)
 	}
