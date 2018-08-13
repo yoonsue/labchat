@@ -6,7 +6,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func TestScrapMenu(t *testing.T) {
+func TestGetSchool(t *testing.T) {
 	testCases := []struct {
 		url      string
 		expected string
