@@ -16,6 +16,8 @@ before_script:
   - go get -u github.com/PuerkitoBio/goquery
   - go get -u gopkg.in/mgo.v2/bson
   - go get -u gopkg.in/mgo.v2
+  - go get -u github.com/gorilla/mux
+  - go get -u github.com/go-kit/kit/log
   - dep ensure
 
 script:
