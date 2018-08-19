@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"html"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -38,10 +37,18 @@ func NewServer(cfg *Config, ms menu.Service) (srv *Server, err error) {
 // long-running server functionality should be implemented in goroutines.
 func (s *Server) Start() {
 	// TODO: implementation.
-	http.HandleFunc("/", s.handleHTTP)
+	// http.HandleFunc("/", s.handleHTTP)
+
+	rou := mux.NewRouter()
+
+	rou.HandleFunc("/keyboard", s.keyboardInit).Methods("GET")
+	rou.HandleFunc("/message", s.messageSet).Methods("POST")
+	rou.HandleFunc("/friend", s.newFriend).Methods("POST")
+	rou.HandleFunc("/friend/", s.removeFriend).Methods("DELETE")
+	rou.HandleFunc("/chat_room/", s.leaveChatRoom).Methods("DELETE")
 
 	// TODO: need to halt goroutine when the program is stopped.
-	go http.ListenAndServe(s.cfg.Address, nil)
+	go http.ListenAndServe(s.cfg.Address, rou)
 }
 
 //// Below stuctures are created following 'Kakao API specifications'
@@ -73,52 +80,6 @@ type response struct {
 // user contains UserKey for user_key of message
 type user struct {
 	UserKey string `json:"user_key"`
-}
-
-// handleHTTP is requested handler of Kakao API (RESTful API)
-func (s *Server) handleHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Printf("received: %s\t %s\n", r.Method, html.EscapeString(r.URL.Path))
-
-	rou := mux.NewRouter()
-
-	rou.HandleFunc("/", s.test)
-
-	rou.HandleFunc("/keyboard", s.keyboardInit).Methods("GET")
-	rou.HandleFunc("/message", s.messageSet).Methods("POST")
-	rou.HandleFunc("/friend", s.newFriend).Methods("POST")
-	rou.HandleFunc("/friend/", s.removeFriend).Methods("DELETE")
-	rou.HandleFunc("/chat_room/", s.leaveChatRoom).Methods("DELETE")
-	err := rou.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
-		pathTemplate, err := route.GetPathTemplate()
-		if err == nil {
-			log.Println(errors.Wrap(err, "Path regexp:"), pathTemplate)
-		}
-		queriesTemplates, err := route.GetQueriesTemplates()
-		if err == nil {
-			log.Println(errors.Wrap(err, "Queries templates: "), queriesTemplates)
-		}
-		queriesRegexps, err := route.GetQueriesRegexp()
-		if err == nil {
-			log.Println(errors.Wrap(err, "Queries regexps: "), queriesRegexps)
-		}
-		methods, err := route.GetMethods()
-		if err == nil {
-			log.Println(errors.Wrap(err, "Methods: "), methods)
-		}
-		log.Println()
-		return nil
-	})
-	if err != nil {
-		log.Println(errors.Wrap(err, "ERROR: "))
-	}
-
-	// http.Handle("/", rou)
-	// return rou
-}
-
-func (s *Server) test(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("TESTING...\n"))
-	return
 }
 
 // curl -XGET 'https://:your_server_url/keyboard'
@@ -199,9 +160,9 @@ func (s *Server) removeFriend(w http.ResponseWriter, r *http.Request) {
 
 	// chatroom delete by admin
 	// curl -XDELETE 'https://:your_server_url/chat_room/HASHED_USER_KEY'
-	if split[0] == "/friend/" {
-		log.Printf("user %s deleted", split[1])
-	}
+	// if split[0] == "/friend/" {
+	log.Printf("user %s deleted", split[1])
+	// }
 }
 
 func (s *Server) leaveChatRoom(w http.ResponseWriter, r *http.Request) {
@@ -209,9 +170,9 @@ func (s *Server) leaveChatRoom(w http.ResponseWriter, r *http.Request) {
 
 	// chatroom deleted by user
 	// DELETE	http://:your_server_url/chat_room/:user_key
-	if split[0] == "/chat_room/" {
-		log.Printf("user %s leaved", split[2])
-	}
+	// if split[0] == "/chat_room/" {
+	log.Printf("user %s leaved", split[2])
+	// }
 	return
 }
 
