@@ -37,18 +37,23 @@ func NewServer(cfg *Config, ms menu.Service) (srv *Server, err error) {
 // long-running server functionality should be implemented in goroutines.
 func (s *Server) Start() {
 	// TODO: implementation.
-	// http.HandleFunc("/", s.handleHTTP)
-
-	rou := mux.NewRouter()
-
-	rou.HandleFunc("/keyboard", s.keyboardInit).Methods("GET")
-	rou.HandleFunc("/message", s.messageSet).Methods("POST")
-	rou.HandleFunc("/friend", s.newFriend).Methods("POST")
-	rou.HandleFunc("/friend/", s.removeFriend).Methods("DELETE")
-	rou.HandleFunc("/chat_room/", s.leaveChatRoom).Methods("DELETE")
+	rou := s.Router()
 
 	// TODO: need to halt goroutine when the program is stopped.
 	go http.ListenAndServe(s.cfg.Address, rou)
+}
+
+// Router multiplexes the http handler
+func (s *Server) Router() *mux.Router {
+	rou := mux.NewRouter()
+
+	rou.HandleFunc("/keyboard", s.keyboardHandler).Methods("GET")
+	rou.HandleFunc("/message", s.messageHandler).Methods("POST")
+	rou.HandleFunc("/friend", s.friendHandler).Methods("POST")
+	rou.HandleFunc("/friend/", s.chatroomForceHandler).Methods("DELETE")
+	rou.HandleFunc("/chat_room/", s.chatroomHandler).Methods("DELETE")
+
+	return rou
 }
 
 //// Below stuctures are created following 'Kakao API specifications'
@@ -83,7 +88,7 @@ type user struct {
 }
 
 // curl -XGET 'https://:your_server_url/keyboard'
-func (s *Server) keyboardInit(w http.ResponseWriter, r *http.Request) {
+func (s *Server) keyboardHandler(w http.ResponseWriter, r *http.Request) {
 	// CASE1 Type: 'text'
 	initkeyboard := keyboard{Type: "text"}
 
@@ -105,7 +110,7 @@ func (s *Server) keyboardInit(w http.ResponseWriter, r *http.Request) {
 //   "type": "text",
 //   "content": "차량번호등록"
 // }'
-func (s *Server) messageSet(w http.ResponseWriter, r *http.Request) {
+func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	r.Body.Close()
 	if err != nil {
@@ -133,13 +138,13 @@ func (s *Server) messageSet(w http.ResponseWriter, r *http.Request) {
 		log.Println(errors.Wrap(err, "failed to marshal response"))
 	}
 	log.Printf("send %s\n", string(resp))
-	w.Write([]byte(string(resp) + "\n"))
+	w.Write([]byte(string(resp)))
 	return
 }
 
 // friend information
 // curl -XPOST 'https://:your_server_url/friend' -d '{"user_key" : "HASHED_USER_KEY" }'
-func (s *Server) newFriend(w http.ResponseWriter, r *http.Request) {
+func (s *Server) friendHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	r.Body.Close()
 	if err != nil {
@@ -155,24 +160,19 @@ func (s *Server) newFriend(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func (s *Server) removeFriend(w http.ResponseWriter, r *http.Request) {
+// chatroom delete by admin
+// curl -XDELETE 'https://:your_server_url/chat_room/HASHED_USER_KEY'
+func (s *Server) chatroomForceHandler(w http.ResponseWriter, r *http.Request) {
 	split := strings.Split(r.URL.Path, ":")
-
-	// chatroom delete by admin
-	// curl -XDELETE 'https://:your_server_url/chat_room/HASHED_USER_KEY'
-	// if split[0] == "/friend/" {
 	log.Printf("user %s deleted", split[1])
-	// }
 }
 
-func (s *Server) leaveChatRoom(w http.ResponseWriter, r *http.Request) {
+// chatroom deleted by user
+// DELETE	http://:your_server_url/chat_room/:user_key
+func (s *Server) chatroomHandler(w http.ResponseWriter, r *http.Request) {
 	split := strings.Split(r.URL.Path, ":")
 
-	// chatroom deleted by user
-	// DELETE	http://:your_server_url/chat_room/:user_key
-	// if split[0] == "/chat_room/" {
 	log.Printf("user %s leaved", split[2])
-	// }
 	return
 }
 
@@ -191,8 +191,11 @@ func messageKey(rawmessage string) string {
 }
 
 // menuURLMap
-// var menuURLMap = map[string]string{"교직원식당": "http://www.hanyang.ac.kr/web/www/-254", "학생식당": "http://www.hanyang.ac.kr/web/www/-255", "창업보육센터": "http://www.hanyang.ac.kr/web/www/-258", "창의인재원식당": "http://www.hanyang.ac.kr/web/www/-256"}
-var menuURLMap = []string{"http://www.hanyang.ac.kr/web/www/-254", "http://www.hanyang.ac.kr/web/www/-255", "http://www.hanyang.ac.kr/web/www/-258", "http://www.hanyang.ac.kr/web/www/-256"}
+//// var menuURLMap = map[string]string{"교직원식당": "http://www.hanyang.ac.kr/web/www/-254", "학생식당": "http://www.hanyang.ac.kr/web/www/-255", "창업보육센터": "http://www.hanyang.ac.kr/web/www/-258", "창의인재원식당": "http://www.hanyang.ac.kr/web/www/-256"}
+var menuURLMap = []string{"http://www.hanyang.ac.kr/web/www/-254",
+	"http://www.hanyang.ac.kr/web/www/-255",
+	"http://www.hanyang.ac.kr/web/www/-258",
+	"http://www.hanyang.ac.kr/web/www/-256"}
 
 func (s *Server) msgFor(request string) string {
 	// var s *Server
