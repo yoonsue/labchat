@@ -7,21 +7,45 @@ import (
 )
 
 func TestGetSchool(t *testing.T) {
+	// var s *service
 	testCases := []struct {
-		url      string
-		expected string
+		url          string
+		expectedRest string
 	}{
 		{
 			"http://www.hanyang.ac.kr/web/www/-254",
-			"[중식A]",
+			"교직원식당",
 		},
 		{
 			"http://www.hanyang.ac.kr/web/www/-255",
-			"[특식]",
+			"학생식당",
 		},
 		{
 			"http://www.hanyang.ac.kr/web/www/-258",
-			"[한식]",
+			"창업보육센터",
+		},
+	}
+	for _, c := range testCases {
+		///// TO BE CHANGED : scrapMenu --> GetSchool
+		gotMenuRest, _ := scrapMenu(c.url)
+
+		if c.expectedRest != gotMenuRest {
+			t.Errorf("expected %s, got %s", c.expectedRest, gotMenuRest)
+		}
+	}
+}
+func TestScrapMenu(t *testing.T) {
+	testCases := []struct {
+		url string
+	}{
+		{
+			"http://www.hanyang.ac.kr/web/www/-254",
+		},
+		{
+			"http://www.hanyang.ac.kr/web/www/-255",
+		},
+		{
+			"http://www.hanyang.ac.kr/web/www/-258",
 		},
 	}
 
@@ -31,8 +55,5 @@ func TestGetSchool(t *testing.T) {
 		if err != nil {
 			t.Errorf("failed to get URL")
 		}
-		// if !strings.HasPrefix(result, c.expected) {
-		// 	t.Errorf("start with '%s' on url %s, got '%s'", c.expected, c.url, result)
-		// }
 	}
 }
