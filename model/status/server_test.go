@@ -14,3 +14,28 @@ func TestNewServer(t *testing.T) {
 		t.Errorf("expected %s, got %s", s.timeStamp, gotServer.timeStamp)
 	}
 }
+func TestString(t *testing.T) {
+	testCases := []struct {
+		temp     Temperature
+		expected string
+	}{
+		{
+			3.0,
+			"3 C",
+		},
+		{
+			3.9,
+			"3.9000000953674316 C",
+		},
+		{
+			-1,
+			"-1 C",
+		},
+	}
+	for _, c := range testCases {
+		gotTemp := c.temp.String()
+		if c.expected != gotTemp {
+			t.Errorf("expected %s, got %s", c.expected, gotTemp)
+		}
+	}
+}
