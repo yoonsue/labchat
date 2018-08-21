@@ -26,7 +26,6 @@ type Server struct {
 
 // NewServer creates a new labchat server with the given configuration.
 func NewServer(cfg *Config, ms menu.Service) (srv *Server, err error) {
-	// TODO: implementation.
 	return &Server{
 		cfg:         cfg,
 		menuService: ms,
@@ -156,6 +155,7 @@ func (s *Server) friendHandler(w http.ResponseWriter, r *http.Request) {
 	if err := json.Unmarshal(body, &usr); err != nil {
 		log.Println(errors.Wrap(err, "failed to unmarshal body of /friend"))
 	}
+	w.Write([]byte(string("Hello~")))
 	log.Printf("Friend %s joined\n", usr.UserKey)
 	return
 }
@@ -165,13 +165,13 @@ func (s *Server) friendHandler(w http.ResponseWriter, r *http.Request) {
 func (s *Server) chatroomForceHandler(w http.ResponseWriter, r *http.Request) {
 	split := strings.Split(r.URL.Path, ":")
 	log.Printf("user %s deleted", split[1])
+	return
 }
 
 // chatroom deleted by user
 // DELETE	http://:your_server_url/chat_room/:user_key
 func (s *Server) chatroomHandler(w http.ResponseWriter, r *http.Request) {
 	split := strings.Split(r.URL.Path, ":")
-
 	log.Printf("user %s leaved", split[2])
 	return
 }
@@ -198,7 +198,6 @@ var menuURLMap = []string{"http://www.hanyang.ac.kr/web/www/-254",
 	"http://www.hanyang.ac.kr/web/www/-256"}
 
 func (s *Server) msgFor(request string) string {
-	// var s *Server
 	if request == "status" {
 		c := status.ServerCheck()
 
