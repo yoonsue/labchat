@@ -1,17 +1,19 @@
 package server
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
 	"github.com/yoonsue/labchat/function/menu"
+	"github.com/yoonsue/labchat/repository/inmem"
 )
 
 func TestNewServer(t *testing.T) {
 	var ms menu.Service
-	s := &Server{
+	s := Server{
 		cfg: &Config{
 			Address: "localhost:8080",
 		},
@@ -26,13 +28,47 @@ func TestNewServer(t *testing.T) {
 	}
 }
 
-// func TestStart(t *testing.T) {
-// 	var s *Server
-// 	rou := s.Router()
+func TestStart(t *testing.T) {
+	var ms menu.Service
+	s := Server{
+		cfg: &Config{
+			Address: "localhost:8080",
+		},
+		menuService: ms,
+	}
+	gotMux := s.Start()
 
-// }
-func TestRouter(t *testing.T) {
+	testCases := []struct {
+		method   string
+		uri      string
+		query    io.Reader
+		expected string
+	}{
+		{
+			"GET", "/keyboard",
+			nil,
+			"{\"type\":\"text\",\"buttons\":null}\n",
+		},
+		{
+			"POST", "/message",
+			strings.NewReader(""),
+			"{\"message\":{\"text\":\"....????\"}}",
+		},
+		{
+			"POST", "/friend",
+			strings.NewReader("{\"user_key\" : \"HASHED_USER_KEY\" }"),
+			"Hello~",
+		},
+	}
+	for _, c := range testCases {
+		req, _ := http.NewRequest(c.method, c.uri, c.query)
+		res := httptest.NewRecorder()
+		gotMux.ServeHTTP(res, req)
 
+		if res.Body.String() != c.expected {
+			t.Error("Expected hello Chris but got ", res.Body.String())
+		}
+	}
 }
 func TestMessageKey(t *testing.T) {
 	testCases := []struct {
@@ -155,45 +191,38 @@ func TestFriendHandler(t *testing.T) {
 	}
 }
 
-// type Service interface {
-// 	GetSchool(url string) *model.Menu
-// }
-// type fakeService struct {
-// }
-// func (s fakeService) GetSchool(url string) *model.Menu {
-// 	return &model.Menu{Restaurant: "restA", TodayMenu: "menuA"}
-// }
+func TestMsgFor(t *testing.T) {
+	r := inmem.NewMenuRepository()
+	ms := menu.NewService(r)
+	s := Server{
+		cfg: &Config{
+			Address: "localhost:8080",
+		},
+		menuService: ms,
+	}
 
-// func TestMsgFor(t *testing.T) {
-// 	var s *Server
-// 	// s := &Server{
-// 	// 	cfg: &Config{
-// 	// 		Address: "localhost:8080",
-// 	// 	},
-// 	// }
+	testCases := []struct {
+		input    string
+		expected string
+	}{
+		{
+			"status",
+			"TIME : ",
+		},
+		{
+			"menu",
+			"교직원식당",
+		},
+		{
+			"hello",
+			"hello....????",
+		},
+	}
 
-// 	testCases := []struct {
-// 		input    string
-// 		expected string
-// 	}{
-// 		{
-// 			"status",
-// 			"TIME : ",
-// 		},
-// 		{
-// 			"menu",
-// 			"restA",
-// 		},
-// 		{
-// 			"hello",
-// 			"hello....????",
-// 		},
-// 	}
-
-// 	for _, c := range testCases {
-// 		result := s.msgFor(c.input)
-// 		if !strings.HasPrefix(result, c.expected) {
-// 			t.Errorf("start with '%s' on input %s, got %s", c.expected, c.input, result)
-// 		}
-// 	}
-// }
+	for _, c := range testCases {
+		result := s.msgFor(c.input)
+		if !strings.HasPrefix(result, c.expected) {
+			t.Errorf("start with '%s' on input %s, got %s", c.expected, c.input, result)
+		}
+	}
+}

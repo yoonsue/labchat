@@ -34,16 +34,8 @@ func NewServer(cfg *Config, ms menu.Service) (srv *Server, err error) {
 
 // Start runs the server and starts handling for incoming requests. All the
 // long-running server functionality should be implemented in goroutines.
-func (s *Server) Start() {
+func (s *Server) Start() *mux.Router {
 	// TODO: implementation.
-	rou := s.Router()
-
-	// TODO: need to halt goroutine when the program is stopped.
-	go http.ListenAndServe(s.cfg.Address, rou)
-}
-
-// Router multiplexes the http handler
-func (s *Server) Router() *mux.Router {
 	rou := mux.NewRouter()
 
 	rou.HandleFunc("/keyboard", s.keyboardHandler).Methods("GET")
@@ -52,6 +44,8 @@ func (s *Server) Router() *mux.Router {
 	rou.HandleFunc("/friend/", s.chatroomForceHandler).Methods("DELETE")
 	rou.HandleFunc("/chat_room/", s.chatroomHandler).Methods("DELETE")
 
+	// TODO: need to halt goroutine when the program is stopped.
+	go http.ListenAndServe(s.cfg.Address, rou)
 	return rou
 }
 
