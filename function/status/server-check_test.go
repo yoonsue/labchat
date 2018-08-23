@@ -20,6 +20,6 @@ func TestServerCheck(t *testing.T) {
 }
 
 // Cant get access in code coverage /sys.
-// func TestGetTemp(t *testing.T) {
-
-// }
+func TestGetTemp(t *testing.T) {
+	t.Skip("skipping test there is no temp file in code coverage")
+}

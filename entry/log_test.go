@@ -5,6 +5,9 @@ import (
 	"testing"
 )
 
+// I thought that I don't have to deal with testing the fatal error
+// cause it incidently exit its current situation.
+
 func TestSetLog(t *testing.T) {
 	tmpLog := "../tmpLog.log"
 	setLog(tmpLog)

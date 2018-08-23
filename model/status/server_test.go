@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+func TestTime(t *testing.T) {
+	t.Skip("No need to test...")
+}
+
 func TestNewServer(t *testing.T) {
 	s := &Server{
 		timeStamp: time.Now().Format(timeFormat),
