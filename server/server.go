@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/gorilla/mux"
 
@@ -41,8 +40,8 @@ func (s *Server) Start() *mux.Router {
 	rou.HandleFunc("/keyboard", s.keyboardHandler).Methods("GET")
 	rou.HandleFunc("/message", s.messageHandler).Methods("POST")
 	rou.HandleFunc("/friend", s.friendHandler).Methods("POST")
-	rou.HandleFunc("/friend/", s.chatroomForceHandler).Methods("DELETE")
-	rou.HandleFunc("/chat_room/", s.chatroomHandler).Methods("DELETE")
+	rou.HandleFunc("/friend/{id}", s.friendDeleteHandler).Methods("DELETE")
+	rou.HandleFunc("/chat_room/{id}", s.chatroomDeleteHandler).Methods("DELETE")
 
 	// TODO: need to halt goroutine when the program is stopped.
 	go http.ListenAndServe(s.cfg.Address, rou)
@@ -149,24 +148,26 @@ func (s *Server) friendHandler(w http.ResponseWriter, r *http.Request) {
 	if err := json.Unmarshal(body, &usr); err != nil {
 		log.Println(errors.Wrap(err, "failed to unmarshal body of /friend"))
 	}
-	w.Write([]byte(string("Hello~")))
+	w.Write([]byte(string("Hello, my friend")))
 	log.Printf("Friend %s joined\n", usr.UserKey)
 	return
 }
 
-// chatroom delete by admin
-// curl -XDELETE 'https://:your_server_url/chat_room/HASHED_USER_KEY'
-func (s *Server) chatroomForceHandler(w http.ResponseWriter, r *http.Request) {
-	split := strings.Split(r.URL.Path, ":")
-	log.Printf("user %s deleted", split[1])
+// friend delete by admin
+// curl -XDELETE 'https://:your_server_url/friend/:user_key'
+func (s *Server) friendDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	userKey := vars["id"]
+	log.Printf("user %s deleted", userKey)
 	return
 }
 
 // chatroom deleted by user
-// DELETE	http://:your_server_url/chat_room/:user_key
-func (s *Server) chatroomHandler(w http.ResponseWriter, r *http.Request) {
-	split := strings.Split(r.URL.Path, ":")
-	log.Printf("user %s leaved", split[2])
+// curl -XDELETE 'https://:your_server_url/chat_room/HASHED_USER_KEY'
+func (s *Server) chatroomDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	userKey := vars["id"]
+	log.Printf("user %s leaved", userKey)
 	return
 }
 
