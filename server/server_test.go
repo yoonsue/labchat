@@ -57,7 +57,7 @@ func TestStart(t *testing.T) {
 		{
 			"POST", "/friend",
 			strings.NewReader("{\"user_key\" : \"HASHED_USER_KEY\" }"),
-			"Hello~",
+			"Hello, my friend",
 		},
 	}
 	for _, c := range testCases {
@@ -66,7 +66,7 @@ func TestStart(t *testing.T) {
 		gotMux.ServeHTTP(res, req)
 
 		if res.Body.String() != c.expected {
-			t.Error("Expected hello Chris but got ", res.Body.String())
+			t.Errorf("Expected hello %s but got %s", c.expected, res.Body.String())
 		}
 	}
 }
@@ -201,7 +201,7 @@ func TestFriendDeleteHandler(t *testing.T) {
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
-	baseHandler := http.HandleFunc(s.friendHandler)
+	baseHandler := http.HandlerFunc(s.friendHandler)
 	baseHandler.ServeHTTP(rr, baseReq)
 	handler := http.HandlerFunc(s.friendDeleteHandler)
 
@@ -216,7 +216,7 @@ func TestFriendDeleteHandler(t *testing.T) {
 	}
 
 	// Check the response body is what we expect.
-	expected := "Hello~"
+	expected := "Hello, my friend\nuser deleted"
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
@@ -233,7 +233,7 @@ func TestChatroomDeleteHandler(t *testing.T) {
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
-	baseHandler := http.HandleFunc(s.friendHandler)
+	baseHandler := http.HandlerFunc(s.friendHandler)
 	baseHandler.ServeHTTP(rr, baseReq)
 	handler := http.HandlerFunc(s.chatroomDeleteHandler)
 
@@ -248,7 +248,7 @@ func TestChatroomDeleteHandler(t *testing.T) {
 	}
 
 	// Check the response body is what we expect.
-	expected := ""
+	expected := "Hello, my friend\nchatroom deleted"
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)

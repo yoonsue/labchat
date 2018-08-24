@@ -159,6 +159,7 @@ func (s *Server) friendDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	userKey := vars["id"]
 	log.Printf("user %s deleted", userKey)
+	w.Write([]byte(string("\nuser deleted")))
 	return
 }
 
@@ -168,6 +169,7 @@ func (s *Server) chatroomDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	userKey := vars["id"]
 	log.Printf("user %s leaved", userKey)
+	w.Write([]byte(string("\nchatroom deleted")))
 	return
 }
 
