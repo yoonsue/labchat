@@ -5,12 +5,15 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
 
 	"github.com/pkg/errors"
 	"github.com/yoonsue/labchat/function/menu"
+	"github.com/yoonsue/labchat/function/phone"
 	"github.com/yoonsue/labchat/function/status"
+	phoneModel "github.com/yoonsue/labchat/model/phone"
 )
 
 // Address is for server address.
@@ -19,15 +22,17 @@ type Address string
 // Server provides http service for the labchat service.
 type Server struct {
 	// TODO: implementation.
-	cfg         *Config
-	menuService menu.Service
+	cfg          *Config
+	menuService  menu.Service
+	phoneService phone.Service
 }
 
 // NewServer creates a new labchat server with the given configuration.
-func NewServer(cfg *Config, ms menu.Service) (srv *Server, err error) {
+func NewServer(cfg *Config, ms menu.Service, ps phone.Service) (srv *Server, err error) {
 	return &Server{
-		cfg:         cfg,
-		menuService: ms,
+		cfg:          cfg,
+		menuService:  ms,
+		phoneService: ps,
 	}, nil
 }
 
@@ -122,7 +127,7 @@ func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 		msgCon = msg.Content
 	}
 
-	remsg := s.msgFor(msgCon)
+	remsg := s.msgFor(strings.Fields(msgCon))
 	resp, err := json.Marshal(response{
 		Message: respText{
 			Text: remsg}})
@@ -194,8 +199,8 @@ var menuURLMap = []string{"http://www.hanyang.ac.kr/web/www/-254",
 	"http://www.hanyang.ac.kr/web/www/-258",
 	"http://www.hanyang.ac.kr/web/www/-256"}
 
-func (s *Server) msgFor(request string) string {
-	if request == "status" {
+func (s *Server) msgFor(request []string) string {
+	if request[0] == "status" {
 		c := status.ServerCheck()
 
 		str := "TIME : " + c.Time()
@@ -204,16 +209,33 @@ func (s *Server) msgFor(request string) string {
 
 		return str
 	}
-	if request == "menu" {
+	if request[0] == "menu" {
 		str := ""
 		for _, menuURL := range menuURLMap {
-			menuRest := s.menuService.GetSchool(menuURL)
-			str += string(menuRest.Restaurant)
+			menu := s.menuService.GetSchool(menuURL)
+			str += string(menu.Restaurant)
 			str += "\n"
-			str += string(menuRest.TodayMenu)
+			str += string(menu.TodayMenu)
 			str += "\n\n"
 		}
 		return str
 	}
-	return request + "....????"
+	if request[0] == "phone" {
+		if len(request) < 2 {
+			return "no department"
+		}
+		department := phoneModel.Department(request[1])
+		p, _ := s.phoneService.GetPhone(department)
+		str := ""
+		if p == nil {
+			str += "No result.."
+		} else {
+			str += string(p.Department)
+			str += "\t"
+			str += string(p.Extension)
+			str += "\n"
+		}
+		return str
+	}
+	return strings.Join(request, " ") + "....????"
 }

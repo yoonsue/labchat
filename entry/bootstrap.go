@@ -10,7 +10,9 @@ import (
 
 	"github.com/pkg/errors"
 	menuFunction "github.com/yoonsue/labchat/function/menu"
+	phoneFunction "github.com/yoonsue/labchat/function/phone"
 	menuModel "github.com/yoonsue/labchat/model/menu"
+	phoneModel "github.com/yoonsue/labchat/model/phone"
 	"github.com/yoonsue/labchat/repository/inmem"
 	"github.com/yoonsue/labchat/repository/mongo"
 	"github.com/yoonsue/labchat/server"
@@ -37,11 +39,13 @@ func Bootstrap() {
 	log.Println("read configuration file")
 
 	var (
-		menus menuModel.Repository
+		menus     menuModel.Repository
+		phonebook phoneModel.Repository
 	)
 
 	if yamlConfig.Database == "inmem" {
 		menus = inmem.NewMenuRepository()
+		phonebook = inmem.NewPhoneRepository()
 	} else if yamlConfig.Database == "mongo" {
 		session, err := mgo.Dial(yamlConfig.DBURL)
 		if err != nil {
@@ -50,6 +54,7 @@ func Bootstrap() {
 		defer session.Close()
 		session.SetMode(mgo.Monotonic, true)
 		menus, _ = mongo.NewMenuRepository("mongo", session)
+		// phonebook, _ = mongo.NewPhoneRepository()
 		log.Println("create the mongoDB session")
 	} else {
 		log.Fatalf("unsupported database type: %s", yamlConfig.Database)
@@ -57,12 +62,14 @@ func Bootstrap() {
 
 	var ms menuFunction.Service
 	ms = menuFunction.NewService(menus)
+	var ps phoneFunction.Service
+	ps = phoneFunction.NewService(phonebook)
 
 	serverConfig := server.DefaultConfig()
 	serverConfig.Address = yamlConfig.Address
 	log.Println("make server configuration")
 
-	labchat, err := server.NewServer(serverConfig, ms)
+	labchat, err := server.NewServer(serverConfig, ms, ps)
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "failed to create labchat server"))
 	}
