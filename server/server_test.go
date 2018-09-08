@@ -8,18 +8,21 @@ import (
 	"testing"
 
 	"github.com/yoonsue/labchat/function/menu"
+	"github.com/yoonsue/labchat/function/phone"
 	"github.com/yoonsue/labchat/repository/inmem"
 )
 
 func TestNewServer(t *testing.T) {
 	var ms menu.Service
+	var ps phone.Service
 	s := Server{
 		cfg: &Config{
 			Address: "localhost:8080",
 		},
-		menuService: ms,
+		menuService:  ms,
+		phoneService: ps,
 	}
-	gotServer, _ := NewServer(s.cfg, ms)
+	gotServer, _ := NewServer(s.cfg, ms, ps)
 	if s.cfg != gotServer.cfg {
 		t.Errorf("expected %s, got %s", s.cfg, gotServer.cfg)
 	}
@@ -266,19 +269,19 @@ func TestMsgFor(t *testing.T) {
 	}
 
 	testCases := []struct {
-		input    string
+		input    []string
 		expected string
 	}{
 		{
-			"status",
+			strings.Fields("status"),
 			"TIME : ",
 		},
 		{
-			"menu",
+			strings.Fields("menu"),
 			"교직원식당",
 		},
 		{
-			"hello",
+			strings.Fields("hello"),
 			"hello....????",
 		},
 	}
