@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -232,7 +233,7 @@ func (s *Server) msgFor(request []string) string {
 		} else {
 			str += string(p.Department)
 			str += "\t"
-			str += string(p.Extension)
+			str += strconv.Itoa(p.Extension)
 			str += "\n"
 		}
 		return str

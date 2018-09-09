@@ -23,6 +23,7 @@ import (
 // TODO: allow to change configuration file path by command-line interface.
 const defaultConfigPath = "./labchat.conf.yaml"
 const defaultLogPath = "./labchat.log"
+const defaultPhonePath = "./phone.txt"
 
 // Bootstrap is the entry point for running the labchat server.
 // It generates the necessary configuration files and creates the components
@@ -74,6 +75,9 @@ func Bootstrap() {
 		log.Fatal(errors.Wrap(err, "failed to create labchat server"))
 	}
 	log.Println("create the labchat server")
+
+	// TO BE CONSIDERED: it would be inside of NewServer.
+	ps.IntialStore(defaultPhonePath)
 
 	labchat.Start()
 	log.Printf("run the labchat server at %s", serverConfig.Address)

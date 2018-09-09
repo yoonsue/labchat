@@ -101,8 +101,8 @@ func (r *PhoneRepository) Store(target *phone.Phone) error {
 func (r *PhoneRepository) Find(d phone.Department) (*phone.Phone, error) {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
-	if menu, exists := r.phoneMap[d]; exists {
-		return menu, nil
+	if phone, exists := r.phoneMap[d]; exists {
+		return phone, nil
 	}
 	return nil, nil
 }
