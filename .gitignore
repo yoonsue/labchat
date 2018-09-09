@@ -13,5 +13,6 @@ labchat.log
 
 # Configuration file.
 labchat.conf.yaml
+phone.txt
 msg.json
 .vscode/
