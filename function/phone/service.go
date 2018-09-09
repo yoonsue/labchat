@@ -2,7 +2,6 @@ package phone
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -46,7 +45,6 @@ func (s *service) IntialStore(fpath string) error {
 		splitLine := strings.Split(line, " ")
 		dept, exten := splitLine[0], splitLine[1]
 		extenInt, err := strconv.Atoi(exten)
-		fmt.Printf("dept: %s, exten: %d\n", dept, extenInt)
 		if err != nil {
 			log.Println("exten is not int type")
 		}

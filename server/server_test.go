@@ -33,11 +33,13 @@ func TestNewServer(t *testing.T) {
 
 func TestStart(t *testing.T) {
 	var ms menu.Service
+	var ps phone.Service
 	s := Server{
 		cfg: &Config{
 			Address: "localhost:8080",
 		},
-		menuService: ms,
+		menuService:  ms,
+		phoneService: ps,
 	}
 	gotMux := s.Start()
 
@@ -54,8 +56,8 @@ func TestStart(t *testing.T) {
 		},
 		{
 			"POST", "/message",
-			strings.NewReader(""),
-			"{\"message\":{\"text\":\"....????\"}}",
+			strings.NewReader("{\"user_key\" : \"HASHED_USER_KEY\", \"type\":\"text\",\"content\":\"?\" }"),
+			"{\"message\":{\"text\":\"?....????\"}}",
 		},
 		{
 			"POST", "/friend",
@@ -138,7 +140,7 @@ func TestKeyboardHandler(t *testing.T) {
 
 func TestMessageHandler(t *testing.T) {
 	// Create a request to pass to our handler.
-	req, err := http.NewRequest("POST", "/message", strings.NewReader(""))
+	req, err := http.NewRequest("POST", "/message", strings.NewReader("{\"user_key\" : \"HASHED_USER_KEY\", \"type\":\"text\",\"content\":\"?\" }"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -158,7 +160,7 @@ func TestMessageHandler(t *testing.T) {
 	}
 
 	// Check the response body is what we expect.
-	expected := "{\"message\":{\"text\":\"....????\"}}"
+	expected := "{\"message\":{\"text\":\"?....????\"}}"
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)

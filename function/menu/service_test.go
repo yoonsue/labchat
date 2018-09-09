@@ -17,15 +17,15 @@ func TestGetSchool(t *testing.T) {
 		expectedRest model.Restaurant
 	}{
 		{
-			"http://www.hanyang.ac.kr/web/www/-254",
+			"http://www.hanyang.ac.kr/web/www/re11",
 			"교직원식당",
 		},
 		{
-			"http://www.hanyang.ac.kr/web/www/-255",
+			"http://www.hanyang.ac.kr/web/www/re12",
 			"학생식당",
 		},
 		{
-			"http://www.hanyang.ac.kr/web/www/-258",
+			"http://www.hanyang.ac.kr/web/www/re15",
 			"창업보육센터",
 		},
 	}

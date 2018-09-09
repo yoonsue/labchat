@@ -194,11 +194,11 @@ func messageKey(rawmessage string) string {
 }
 
 // menuURLMap
-//// var menuURLMap = map[string]string{"교직원식당": "http://www.hanyang.ac.kr/web/www/-254", "학생식당": "http://www.hanyang.ac.kr/web/www/-255", "창업보육센터": "http://www.hanyang.ac.kr/web/www/-258", "창의인재원식당": "http://www.hanyang.ac.kr/web/www/-256"}
-var menuURLMap = []string{"http://www.hanyang.ac.kr/web/www/-254",
-	"http://www.hanyang.ac.kr/web/www/-255",
-	"http://www.hanyang.ac.kr/web/www/-258",
-	"http://www.hanyang.ac.kr/web/www/-256"}
+//// var menuURLMap = map[string]string{"교직원식당": "http://www.hanyang.ac.kr/web/www/re11", "학생식당": "http://www.hanyang.ac.kr/web/www/re12", "창업보육센터": "http://www.hanyang.ac.kr/web/www/re13", "창의인재원식당": "http://www.hanyang.ac.kr/web/www/re15"}
+var menuURLMap = []string{"https://www.hanyang.ac.kr/web/www/re11",
+	"http://www.hanyang.ac.kr/web/www/re12",
+	"http://www.hanyang.ac.kr/web/www/re13",
+	"http://www.hanyang.ac.kr/web/www/re15"}
 
 func (s *Server) msgFor(request []string) string {
 	if request[0] == "status" {
