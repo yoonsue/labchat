@@ -64,7 +64,7 @@ func TestNewService(t *testing.T) {
 
 	gotService := NewService(r)
 
-	tmpURL := "http://www.hanyang.ac.kr/web/www/-254"
+	tmpURL := "http://www.hanyang.ac.kr/web/www/re11"
 	if s.GetSchool(tmpURL).Restaurant != gotService.GetSchool(tmpURL).Restaurant {
 		t.Errorf("expected %s, got %s", s.GetSchool(tmpURL).Restaurant, gotService.GetSchool(tmpURL).Restaurant)
 	}

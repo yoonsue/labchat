@@ -2,6 +2,7 @@ package phone
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -42,17 +43,24 @@ func (s *service) IntialStore(fpath string) error {
 	}
 	log.Println("initial store started")
 	for _, line := range lines {
-		splitLine := strings.Split(line, " ")
-		dept, exten := splitLine[0], splitLine[1]
-		extenInt, err := strconv.Atoi(exten)
-		if err != nil {
-			log.Println("exten is not int type")
+		dept := ""
+		exten := ""
+		fmt.Println(line)
+		if strings.HasPrefix(line, "=") {
+			dept += line
+		} else {
+			splitLine := strings.Split(line, "\t")
+			dept, exten = splitLine[0], splitLine[1]
+			extenInt, err := strconv.Atoi(exten)
+			if err != nil {
+				log.Println("exten is not int type")
+			}
+			newPhone := &phone.Phone{
+				Department: phone.Department(dept),
+				Extension:  extenInt,
+			}
+			s.phonebook.Store(newPhone)
 		}
-		newPhone := &phone.Phone{
-			Department: phone.Department(dept),
-			Extension:  extenInt,
-		}
-		s.phonebook.Store(newPhone)
 	}
 	return nil
 }
