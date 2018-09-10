@@ -43,13 +43,7 @@ func TestScrapMenu(t *testing.T) {
 		url string
 	}{
 		{
-			"http://www.hanyang.ac.kr/web/www/-254",
-		},
-		{
-			"http://www.hanyang.ac.kr/web/www/-255",
-		},
-		{
-			"http://www.hanyang.ac.kr/web/www/-258",
+			"http://www.hanyang.ac.kr/web/www/re11",
 		},
 	}
 
