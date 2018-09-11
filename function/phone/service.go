@@ -2,7 +2,6 @@ package phone
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -45,7 +44,6 @@ func (s *service) IntialStore(fpath string) error {
 	for _, line := range lines {
 		dept := ""
 		exten := ""
-		fmt.Println(line)
 		if strings.HasPrefix(line, "=") {
 			dept += line
 		} else {

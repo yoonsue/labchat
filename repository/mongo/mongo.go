@@ -5,6 +5,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/yoonsue/labchat/model/menu"
+	"github.com/yoonsue/labchat/model/phone"
 )
 
 // MenuRepository struct definition
@@ -39,7 +40,7 @@ func NewMenuRepository(db string, session *mgo.Session) (menu.Repository, error)
 	return r, nil
 }
 
-// Store saves menu model in memory.
+// Store saves menu model in MongoDB.
 func (r *MenuRepository) Store(target *menu.Menu) error {
 	sess := r.session.Copy()
 	defer sess.Close()
@@ -66,4 +67,65 @@ func (r *MenuRepository) Find(rest menu.Restaurant) (*menu.Menu, error) {
 		return nil, err
 	}
 	return &menu, nil
+}
+
+// PhoneRepository struct definition.
+type PhoneRepository struct {
+	db      string
+	session *mgo.Session
+}
+
+// NewPhoneRepository return a new instance of MongoDB phone repository.
+func NewPhoneRepository(db string, session *mgo.Session) (phone.Repository, error) {
+	r := &PhoneRepository{
+		db:      db,
+		session: session,
+	}
+
+	index := mgo.Index{
+		Key:        []string{"Department"},
+		Unique:     true,
+		DropDups:   true,
+		Background: true,
+		Sparse:     true,
+	}
+
+	sess := r.session.Copy()
+	defer sess.Close()
+
+	c := sess.DB(r.db).C("phone")
+
+	if err := c.EnsureIndex(index); err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+// Store saves phone model in MongoDB.
+func (r *PhoneRepository) Store(target *phone.Phone) error {
+	sess := r.session.Copy()
+	defer sess.Close()
+
+	c := sess.DB(r.db).C("phone")
+
+	_, err := c.Upsert(bson.M{"Department": target.Department}, bson.M{"$set": target})
+
+	return err
+}
+
+// Find returns today's menus that match with the given restaurant.
+func (r *PhoneRepository) Find(dept phone.Department) (*phone.Phone, error) {
+	sess := r.session.Copy()
+	defer sess.Close()
+
+	c := sess.DB(r.db).C("phone")
+
+	phone := phone.Phone{}
+	if err := c.Find(bson.M{"Department": dept}).One(&phone); err != nil {
+		if err == mgo.ErrNotFound {
+			return nil, err
+		}
+		return nil, err
+	}
+	return &phone, nil
 }

@@ -45,9 +45,11 @@ func Bootstrap() {
 	)
 
 	if yamlConfig.Database == "inmem" {
+		log.Println("DB: in-memory")
 		menus = inmem.NewMenuRepository()
 		phonebook = inmem.NewPhoneRepository()
 	} else if yamlConfig.Database == "mongo" {
+		log.Println("DB: MongoDB")
 		session, err := mgo.Dial(yamlConfig.DBURL)
 		if err != nil {
 			log.Fatal(errors.Wrap(err, "failed to establish MongoDB session"))
@@ -55,6 +57,7 @@ func Bootstrap() {
 		defer session.Close()
 		session.SetMode(mgo.Monotonic, true)
 		menus, _ = mongo.NewMenuRepository("mongo", session)
+		phonebook, _ = mongo.NewPhoneRepository("mongo", session)
 		// phonebook, _ = mongo.NewPhoneRepository()
 		log.Println("create the mongoDB session")
 	} else {
