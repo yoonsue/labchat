@@ -5,15 +5,17 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 	model "github.com/yoonsue/labchat/model/status"
 )
 
 // ServerCheck returns server status like temperature and request time
-func ServerCheck() *model.Server {
+func ServerCheck(t time.Time) *model.Server {
 	s := model.NewServer()
 	s.Temperature = getTemp()
+	s.Uptime = getUptime(t)
 	return s
 }
 
@@ -41,4 +43,9 @@ func getTemp() model.Temperature {
 		return -1
 	}
 	return temp
+}
+
+func getUptime(modTime time.Time) time.Duration {
+	since := time.Since(modTime)
+	return since
 }

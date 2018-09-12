@@ -30,6 +30,10 @@ const defaultPhonePath = "./phone.txt"
 // of the system, and injects the dependencies according to its hierarchy.
 func Bootstrap() {
 	// TODO: load the configuration.
+
+	// TODO: modTime is parameter for
+	// modTime := time.Now().Round(0).Add(-(3600 + 60 + 45) * time.Second)
+
 	resource, _ := setLog(defaultLogPath)
 	log.Println("bootstrap the labchat service")
 

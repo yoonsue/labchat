@@ -82,9 +82,7 @@ func readLines(path string) ([]string, error) {
 
 // NewService return struct which provides Service interface
 func NewService(r phone.Repository) Service {
-	s := &service{
+	return &service{
 		phonebook: r,
 	}
-	// s.IntialStore()
-	return s
 }

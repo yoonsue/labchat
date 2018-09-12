@@ -10,6 +10,7 @@ const timeFormat string = "2006-01-02 15:04:05 "
 // Server = VO
 type Server struct {
 	Temperature Temperature
+	Uptime      time.Duration
 	timeStamp   string
 }
 

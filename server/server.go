@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 
@@ -202,11 +203,15 @@ var menuURLMap = []string{"https://www.hanyang.ac.kr/web/www/re11",
 
 func (s *Server) msgFor(request []string) string {
 	if request[0] == "status" {
-		c := status.ServerCheck()
+
+		// TO BE CHANGED from time.Now to modTime in bootstrap.go
+		bootTime := time.Now()
+		c := status.ServerCheck(bootTime)
 
 		str := "TIME : " + c.Time()
 		str = str + "\n"
 		str = str + "TEMP : " + c.Temperature.String()
+		str += "\nUPTIME: " + c.Uptime.String()
 
 		return str
 	}
