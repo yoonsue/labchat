@@ -14,5 +14,6 @@ labchat.log
 # Configuration file.
 labchat.conf.yaml
 phone.txt
+birthday.txt
 msg.json
 .vscode/
