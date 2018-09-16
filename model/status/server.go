@@ -1,6 +1,8 @@
 package status
 
 import (
+	"fmt"
+	"log"
 	"strconv"
 	"time"
 )
@@ -10,19 +12,30 @@ const timeFormat string = "2006-01-02 15:04:05 "
 // Server = VO
 type Server struct {
 	Temperature Temperature
+	BootTime    time.Time
 	Uptime      time.Duration
-	timeStamp   string
 }
 
 // Time returns the time of checking server request.
 func (s Server) Time() string {
-	return s.timeStamp
+	return time.Now().Format(timeFormat)
+}
+
+// FmtDuration returns time string.
+func FmtDuration(d time.Duration) string {
+	d = d.Round(time.Minute)
+	day := d / (24 * time.Hour)
+	h := d / time.Hour
+	d -= h * time.Hour
+	m := d / time.Minute
+	return fmt.Sprintf("day%03d, %02d:%02d", day, h, m)
 }
 
 // NewServer fixes the timestamp when the request is arrived.
-func NewServer() *Server {
-	return &Server{
-		timeStamp: time.Now().Format(timeFormat),
+func NewServer() Server {
+	log.Println("inside newserver")
+	return Server{
+		BootTime: time.Now().Round(0).Add(time.Second),
 	}
 }
 

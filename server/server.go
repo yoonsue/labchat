@@ -7,15 +7,15 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/gorilla/mux"
-
 	"github.com/pkg/errors"
+
 	"github.com/yoonsue/labchat/function/menu"
 	"github.com/yoonsue/labchat/function/phone"
 	"github.com/yoonsue/labchat/function/status"
 	phoneModel "github.com/yoonsue/labchat/model/phone"
+	statusModel "github.com/yoonsue/labchat/model/status"
 )
 
 // Address is for server address.
@@ -24,17 +24,19 @@ type Address string
 // Server provides http service for the labchat service.
 type Server struct {
 	// TODO: implementation.
-	cfg          *Config
-	menuService  menu.Service
-	phoneService phone.Service
+	cfg           *Config
+	menuService   menu.Service
+	phoneService  phone.Service
+	statusService status.Service
 }
 
 // NewServer creates a new labchat server with the given configuration.
-func NewServer(cfg *Config, ms menu.Service, ps phone.Service) (srv *Server, err error) {
+func NewServer(cfg *Config, ms menu.Service, ps phone.Service, ss status.Service) (srv *Server, err error) {
 	return &Server{
-		cfg:          cfg,
-		menuService:  ms,
-		phoneService: ps,
+		cfg:           cfg,
+		menuService:   ms,
+		phoneService:  ps,
+		statusService: ss,
 	}, nil
 }
 
@@ -204,14 +206,11 @@ var menuURLMap = []string{"https://www.hanyang.ac.kr/web/www/re11",
 func (s *Server) msgFor(request []string) string {
 	if request[0] == "status" {
 
-		// TO BE CHANGED from time.Now to modTime in bootstrap.go
-		bootTime := time.Now()
-		c := status.ServerCheck(bootTime)
+		c := s.statusService.ServerCheck()
 
 		str := "TIME : " + c.Time()
-		str = str + "\n"
-		str = str + "TEMP : " + c.Temperature.String()
-		str += "\nUPTIME: " + c.Uptime.String()
+		str += "\nTEMP : " + c.Temperature.String()
+		str += "\nUPTIME: " + statusModel.FmtDuration(c.Uptime)
 
 		return str
 	}

@@ -11,8 +11,10 @@ import (
 	"github.com/pkg/errors"
 	menuFunction "github.com/yoonsue/labchat/function/menu"
 	phoneFunction "github.com/yoonsue/labchat/function/phone"
+	statusFunction "github.com/yoonsue/labchat/function/status"
 	menuModel "github.com/yoonsue/labchat/model/menu"
 	phoneModel "github.com/yoonsue/labchat/model/phone"
+	statusModel "github.com/yoonsue/labchat/model/status"
 	"github.com/yoonsue/labchat/repository/inmem"
 	"github.com/yoonsue/labchat/repository/mongo"
 	"github.com/yoonsue/labchat/server"
@@ -30,9 +32,6 @@ const defaultPhonePath = "./phone.txt"
 // of the system, and injects the dependencies according to its hierarchy.
 func Bootstrap() {
 	// TODO: load the configuration.
-
-	// TODO: modTime is parameter for
-	// modTime := time.Now().Round(0).Add(-(3600 + 60 + 45) * time.Second)
 
 	resource, _ := setLog(defaultLogPath)
 	log.Println("bootstrap the labchat service")
@@ -62,7 +61,6 @@ func Bootstrap() {
 		session.SetMode(mgo.Monotonic, true)
 		menus, _ = mongo.NewMenuRepository(session)
 		phonebook, _ = mongo.NewPhoneRepository(session)
-		// phonebook, _ = mongo.NewPhoneRepository()
 		log.Println("create the mongoDB session")
 	} else {
 		log.Fatalf("unsupported database type: %s", yamlConfig.Database)
@@ -72,12 +70,15 @@ func Bootstrap() {
 	ms = menuFunction.NewService(menus)
 	var ps phoneFunction.Service
 	ps = phoneFunction.NewService(phonebook)
+	statusServer := statusModel.NewServer()
+	var ss statusFunction.Service
+	ss = statusFunction.NewService(statusServer)
 
 	serverConfig := server.DefaultConfig()
 	serverConfig.Address = yamlConfig.Address
 	log.Println("make server configuration")
 
-	labchat, err := server.NewServer(serverConfig, ms, ps)
+	labchat, err := server.NewServer(serverConfig, ms, ps, ss)
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "failed to create labchat server"))
 	}

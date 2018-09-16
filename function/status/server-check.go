@@ -12,12 +12,29 @@ import (
 	model "github.com/yoonsue/labchat/model/status"
 )
 
+// Service declares the methods that status service provides.
+type Service interface {
+	ServerCheck() model.Server
+}
+
+type service struct {
+	statusServer model.Server
+}
+
+// NewService return struct which provides Service interface
+func NewService(statusServer model.Server) Service {
+	return &service{
+		statusServer: statusServer,
+	}
+}
+
 // ServerCheck returns server status like temperature and request time
-func ServerCheck(t time.Time) *model.Server {
-	s := model.NewServer()
-	s.Temperature = getTemp()
-	s.Uptime = getUptime(t)
-	return s
+func (s *service) ServerCheck() model.Server {
+	log.Println("end newserver")
+	s.statusServer.Temperature = getTemp()
+	log.Println("start getUptime function")
+	s.statusServer.Uptime = getUptime(s.statusServer.BootTime)
+	return s.statusServer
 }
 
 // // Got information here :https://www.kernel.org/doc/Documentation/thermal/sysfs-api.txt
@@ -82,7 +99,8 @@ func getTemp() model.Temperature {
 	return temp
 }
 
-func getUptime(modTime time.Time) time.Duration {
-	since := time.Since(modTime)
+func getUptime(bootTime time.Time) time.Duration {
+	since := time.Since(bootTime)
+	log.Println("in getUptime function")
 	return since
 }
