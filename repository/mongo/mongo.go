@@ -15,9 +15,9 @@ type MenuRepository struct {
 }
 
 // NewMenuRepository does several services according to MongoDB
-func NewMenuRepository(db string, session *mgo.Session) (menu.Repository, error) {
+func NewMenuRepository(session *mgo.Session) (menu.Repository, error) {
 	r := &MenuRepository{
-		db:      db,
+		db:      "mongo",
 		session: session,
 	}
 
@@ -76,9 +76,9 @@ type PhoneRepository struct {
 }
 
 // NewPhoneRepository return a new instance of MongoDB phone repository.
-func NewPhoneRepository(db string, session *mgo.Session) (phone.Repository, error) {
+func NewPhoneRepository(session *mgo.Session) (phone.Repository, error) {
 	r := &PhoneRepository{
-		db:      db,
+		db:      "mongo",
 		session: session,
 	}
 

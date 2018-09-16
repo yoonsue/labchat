@@ -60,8 +60,8 @@ func Bootstrap() {
 		}
 		defer session.Close()
 		session.SetMode(mgo.Monotonic, true)
-		menus, _ = mongo.NewMenuRepository("mongo", session)
-		phonebook, _ = mongo.NewPhoneRepository("mongo", session)
+		menus, _ = mongo.NewMenuRepository(session)
+		phonebook, _ = mongo.NewPhoneRepository(session)
 		// phonebook, _ = mongo.NewPhoneRepository()
 		log.Println("create the mongoDB session")
 	} else {
