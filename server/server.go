@@ -208,8 +208,8 @@ func (s *Server) msgFor(request []string) string {
 
 		c := s.statusService.ServerCheck()
 
-		str := "TIME : " + c.Time()
-		str += "\nTEMP : " + c.Temperature.String()
+		// str := "TIME : " + c.Time()
+		str := "TEMP : " + c.Temperature.String()
 		str += "\nUPTIME: " + statusModel.FmtDuration(c.Uptime)
 
 		return str

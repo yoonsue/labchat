@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-const timeFormat string = "2006-01-02 15:04:05 "
+// const timeFormat string = "2006-01-02 15:04:05 "
 
 // Server = VO
 type Server struct {
@@ -16,10 +16,10 @@ type Server struct {
 	Uptime      time.Duration
 }
 
-// Time returns the time of checking server request.
-func (s Server) Time() string {
-	return time.Now().Format(timeFormat)
-}
+// // Time returns the time of checking server request.
+// func (s Server) Time() string {
+// 	return time.Now().Format(timeFormat)
+// }
 
 // FmtDuration returns time string.
 func FmtDuration(d time.Duration) string {
