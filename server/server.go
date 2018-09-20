@@ -78,6 +78,11 @@ type respText struct {
 	Text string `json:"text"`
 }
 
+// respButton is used when response type is text
+type respButton struct {
+	Button string `json:"buttons"`
+}
+
 // response contains Message for respText
 type response struct {
 	Message respText `json:"message"`
@@ -90,13 +95,11 @@ type user struct {
 
 // curl -XGET 'https://:your_server_url/keyboard'
 func (s *Server) keyboardHandler(w http.ResponseWriter, r *http.Request) {
-	// CASE1 Type: 'text'
-	initkeyboard := keyboard{Type: "text"}
-
-	// // CASE2 Type: 'buttons'
-	// initkeyboard := make([]keyboard, 1)
-	// initkeyboard[0].Type = "buttons"
-	// initkeyboard[0].Buttons = []string{"option1", "option2", "option3"}
+	// Type: 'text' or 'buttons' - default is 'text'.
+	initkeyboard := keyboard{
+		Type:    "buttons",
+		Buttons: []string{"도움말", "시작하기"},
+	}
 
 	resp, err := json.Marshal(initkeyboard)
 	if err != nil {
@@ -204,6 +207,10 @@ var menuURLMap = []string{"https://www.hanyang.ac.kr/web/www/re11",
 	"http://www.hanyang.ac.kr/web/www/re15"}
 
 func (s *Server) msgFor(request []string) string {
+	if request[0] == "도움말" {
+		str := "LABchat에 오신걸 환영합니다.\nLABchat은 다음과 같은 기능을 제공합니다.\n - 서버상태 정보\n - 내선번호 검색 기능\n - 교내식당 메유 정보 제공\n"
+		return str
+	}
 	if request[0] == "status" {
 
 		c := s.statusService.ServerCheck()
