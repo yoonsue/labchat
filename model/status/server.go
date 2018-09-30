@@ -25,6 +25,7 @@ type Server struct {
 func FmtDuration(d time.Duration) string {
 	d = d.Round(time.Minute)
 	day := d / (24 * time.Hour)
+	d -= day * (24 * time.Hour)
 	h := d / time.Hour
 	d -= h * time.Hour
 	m := d / time.Minute
