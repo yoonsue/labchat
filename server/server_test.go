@@ -9,20 +9,23 @@ import (
 
 	"github.com/yoonsue/labchat/function/menu"
 	"github.com/yoonsue/labchat/function/phone"
+	"github.com/yoonsue/labchat/function/status"
 	"github.com/yoonsue/labchat/repository/inmem"
 )
 
 func TestNewServer(t *testing.T) {
 	var ms menu.Service
 	var ps phone.Service
+	var ss status.Service
 	s := Server{
 		cfg: &Config{
 			Address: "localhost:8080",
 		},
-		menuService:  ms,
-		phoneService: ps,
+		menuService:   ms,
+		phoneService:  ps,
+		statusService: ss,
 	}
-	gotServer, _ := NewServer(s.cfg, ms, ps)
+	gotServer, _ := NewServer(s.cfg, ms, ps, ss)
 	if s.cfg != gotServer.cfg {
 		t.Errorf("expected %s, got %s", s.cfg, gotServer.cfg)
 	}
@@ -34,12 +37,15 @@ func TestNewServer(t *testing.T) {
 func TestStart(t *testing.T) {
 	var ms menu.Service
 	var ps phone.Service
+	var ss status.Service
+
 	s := Server{
 		cfg: &Config{
 			Address: "localhost:8080",
 		},
-		menuService:  ms,
-		phoneService: ps,
+		menuService:   ms,
+		phoneService:  ps,
+		statusService: ss,
 	}
 	gotMux := s.Start()
 
@@ -52,7 +58,7 @@ func TestStart(t *testing.T) {
 		{
 			"GET", "/keyboard",
 			nil,
-			"{\"type\":\"text\",\"buttons\":null}\n",
+			"{\"type\":\"buttons\",\"buttons\":[\"도움말\",\"시작하기\"]}\n",
 		},
 		{
 			"POST", "/message",
@@ -131,7 +137,7 @@ func TestKeyboardHandler(t *testing.T) {
 	}
 
 	// Check the response body is what we expect.
-	expected := "{\"type\":\"text\",\"buttons\":null}\n"
+	expected := "{\"type\":\"buttons\",\"buttons\":[\"도움말\",\"시작하기\"]}\n"
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
@@ -263,21 +269,24 @@ func TestChatroomDeleteHandler(t *testing.T) {
 func TestMsgFor(t *testing.T) {
 	r := inmem.NewMenuRepository()
 	ms := menu.NewService(r)
+	var ss status.Service
+
 	s := Server{
 		cfg: &Config{
 			Address: "localhost:8080",
 		},
-		menuService: ms,
+		menuService:   ms,
+		statusService: ss,
 	}
 
 	testCases := []struct {
 		input    []string
 		expected string
 	}{
-		{
-			strings.Fields("status"),
-			"TIME : ",
-		},
+		// {
+		// 	strings.Fields("status"),
+		// 	"TEMP : ",
+		// },
 		{
 			strings.Fields("menu"),
 			"교직원식당",
