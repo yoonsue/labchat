@@ -215,7 +215,7 @@ func (s *Server) msgFor(request []string) string {
 		str := "필요한 기능을 사용해보세요."
 		return str
 	}
-	if request[0] == "status" {
+	if request[0] == "status" || request[0] == "Status" || request[0] == "상태" || request[0] == "서버" {
 
 		c := s.statusService.ServerCheck()
 
@@ -225,7 +225,7 @@ func (s *Server) msgFor(request []string) string {
 
 		return str
 	}
-	if request[0] == "menu" {
+	if request[0] == "menu" || request[0] == "Menu" || request[0] == "학식" || request[0] == "메뉴" {
 		str := ""
 		for _, menuURL := range menuURLMap {
 			menu := s.menuService.GetSchool(menuURL)
@@ -236,7 +236,7 @@ func (s *Server) msgFor(request []string) string {
 		}
 		return str
 	}
-	if request[0] == "phone" {
+	if request[0] == "phone" || request[0] == "Phone" || request[0] == "내선" || request[0] == "번호" || request[0] == "내선번호" {
 		if len(request) < 2 {
 			return "no department"
 		}
@@ -249,7 +249,6 @@ func (s *Server) msgFor(request []string) string {
 			str += string(p.Department)
 			str += "\t"
 			str += strconv.Itoa(p.Extension)
-			str += "\n"
 		}
 		return str
 	}
