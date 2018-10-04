@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -109,11 +108,7 @@ func (s *Server) keyboardHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// curl -XPOST 'https://:your_server_url/message' -d '{
-//   "user_key": "encryptedUserKey",
-//   "type": "text",
-//   "content": "차량번호등록"
-// }'
+// curl -XPOST 'https://:your_server_url/message' -d '{  "user_key": "encryptedUserKey",  "type": "text",  "content": "차량번호등록"}'
 func (s *Server) messageHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	r.Body.Close()
@@ -248,7 +243,7 @@ func (s *Server) msgFor(request []string) string {
 		} else {
 			str += string(p.Department)
 			str += "\t"
-			str += strconv.Itoa(p.Extension)
+			str += p.Extension
 		}
 		return str
 	}

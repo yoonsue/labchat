@@ -3,7 +3,7 @@ package phone
 // Phone = VO
 type Phone struct {
 	Department Department
-	Extension  int
+	Extension  string
 }
 
 // Department ...

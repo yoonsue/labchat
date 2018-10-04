@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -49,13 +48,13 @@ func (s *service) IntialStore(fpath string) error {
 		} else {
 			splitLine := strings.Split(line, "\t")
 			dept, exten = splitLine[0], splitLine[1]
-			extenInt, err := strconv.Atoi(exten)
+			// extenInt, err := strconv.Atoi(exten)
 			if err != nil {
 				log.Println("exten is not int type")
 			}
 			newPhone := &phone.Phone{
 				Department: phone.Department(dept),
-				Extension:  extenInt,
+				Extension:  exten,
 			}
 			s.phonebook.Store(newPhone)
 		}
