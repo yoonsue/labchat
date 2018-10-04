@@ -5,11 +5,13 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 
+	"github.com/yoonsue/labchat/function/birthday"
 	"github.com/yoonsue/labchat/function/menu"
 	"github.com/yoonsue/labchat/function/phone"
 	"github.com/yoonsue/labchat/function/status"
@@ -23,19 +25,21 @@ type Address string
 // Server provides http service for the labchat service.
 type Server struct {
 	// TODO: implementation.
-	cfg           *Config
-	menuService   menu.Service
-	phoneService  phone.Service
-	statusService status.Service
+	cfg             *Config
+	menuService     menu.Service
+	phoneService    phone.Service
+	statusService   status.Service
+	birthdayService birthday.Service
 }
 
 // NewServer creates a new labchat server with the given configuration.
-func NewServer(cfg *Config, ms menu.Service, ps phone.Service, ss status.Service) (srv *Server, err error) {
+func NewServer(cfg *Config, ms menu.Service, ps phone.Service, ss status.Service, bs birthday.Service) (srv *Server, err error) {
 	return &Server{
-		cfg:           cfg,
-		menuService:   ms,
-		phoneService:  ps,
-		statusService: ss,
+		cfg:             cfg,
+		menuService:     ms,
+		phoneService:    ps,
+		statusService:   ss,
+		birthdayService: bs,
 	}, nil
 }
 
@@ -244,6 +248,22 @@ func (s *Server) msgFor(request []string) string {
 			str += string(p.Department)
 			str += "\t"
 			str += p.Extension
+		}
+		return str
+	}
+	if request[0] == "birthday" || request[0] == "Birthday" || request[0] == "생일" {
+		if len(request) < 2 {
+			return "no name"
+		}
+		name := request[1]
+		b, _ := s.birthdayService.GetBirthday(name)
+		str := ""
+		if b == nil {
+			str += "No result.."
+		} else {
+			str += b.Name
+			str += "\t"
+			str += strconv.Itoa(b.Birthday)
 		}
 		return str
 	}

@@ -1,36 +1,37 @@
-package phone
+package birthday
 
 import (
 	"bufio"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/yoonsue/labchat/model/phone"
+	"github.com/yoonsue/labchat/model/birthday"
 )
 
 // Service declares the methods that phone service provides.
 type Service interface {
-	GetPhone(department phone.Department) (*phone.Phone, error)
+	GetBirthday(name string) (*birthday.Birthday, error)
 	IntialStore(fpath string) error
 }
 
 type service struct {
-	phonebook phone.Repository
+	birthdayList birthday.Repository
 }
 
-// GetPhone finds phone number in repository and returns it.
-func (s *service) GetPhone(department phone.Department) (*phone.Phone, error) {
-	resPhone, err := s.phonebook.Find(department)
+// GetBirthday finds birthday in repository and returns it.
+func (s *service) GetBirthday(name string) (*birthday.Birthday, error) {
+	resBirthday, err := s.birthdayList.Find(name)
 	if err != nil {
 		log.Println(errors.Wrap(err, "failed to get phone number"))
 		return nil, err
 	}
-	return resPhone, nil
+	return resBirthday, nil
 }
 
-// IntialStore stores all phone in repository.
+// IntialStore stores birthday list in repository.
 func (s *service) IntialStore(fpath string) error {
 	// TO BE IMPLEMENTED:
 	// 1. store at the repository
@@ -39,25 +40,19 @@ func (s *service) IntialStore(fpath string) error {
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "failed to read lines from phone path"))
 	}
-	log.Println("initial phone store started")
+	log.Println("initial birthday store started")
 	for _, line := range lines {
-		dept := ""
-		exten := ""
-		if strings.HasPrefix(line, "=") {
-			dept += line
-		} else {
-			splitLine := strings.Split(line, "\t")
-			dept, exten = splitLine[0], splitLine[1]
-			// extenInt, err := strconv.Atoi(exten)
-			if err != nil {
-				log.Println("exten is not int type")
-			}
-			newPhone := &phone.Phone{
-				Department: phone.Department(dept),
-				Extension:  exten,
-			}
-			s.phonebook.Store(newPhone)
+		splitLine := strings.Split(line, "\t")
+		name, birth := splitLine[0], splitLine[1]
+		birthInt, err := strconv.Atoi(birth)
+		if err != nil {
+			log.Println("exten is not int type")
 		}
+		newBirthday := &birthday.Birthday{
+			Name:     name,
+			Birthday: birthInt,
+		}
+		s.birthdayList.Store(newBirthday)
 	}
 	return nil
 }
@@ -80,8 +75,8 @@ func readLines(path string) ([]string, error) {
 }
 
 // NewService return struct which provides Service interface
-func NewService(r phone.Repository) Service {
+func NewService(r birthday.Repository) Service {
 	return &service{
-		phonebook: r,
+		birthdayList: r,
 	}
 }

@@ -3,6 +3,8 @@ package inmem
 import (
 	"sync"
 
+	"github.com/yoonsue/labchat/model/birthday"
+
 	"github.com/yoonsue/labchat/model/menu"
 	"github.com/yoonsue/labchat/model/phone"
 )
@@ -89,7 +91,7 @@ func NewPhoneRepository() phone.Repository {
 	}
 }
 
-// Store saves menu model in memory.
+// Store saves phone model in memory.
 func (r *PhoneRepository) Store(target *phone.Phone) error {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
@@ -97,12 +99,43 @@ func (r *PhoneRepository) Store(target *phone.Phone) error {
 	return nil
 }
 
-// Find returns today's menus that match with the given restaurant.
+// Find returns phone that match with the given restaurant.
 func (r *PhoneRepository) Find(d phone.Department) (*phone.Phone, error) {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
 	if phone, exists := r.phoneMap[d]; exists {
 		return phone, nil
+	}
+	return nil, nil
+}
+
+// BirthdayRepository struct definition.
+type BirthdayRepository struct {
+	mtx         sync.RWMutex
+	birthdayMap map[string]*birthday.Birthday
+}
+
+// NewBirthdayRepository return a new instance of in-memory phone repository.
+func NewBirthdayRepository() birthday.Repository {
+	return &BirthdayRepository{
+		birthdayMap: make(map[string]*birthday.Birthday),
+	}
+}
+
+// Store saves phone model in memory.
+func (r *BirthdayRepository) Store(target *birthday.Birthday) error {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+	r.birthdayMap[target.Name] = target
+	return nil
+}
+
+// Find returns phone that match with the given restaurant.
+func (r *BirthdayRepository) Find(name string) (*birthday.Birthday, error) {
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
+	if birthday, exists := r.birthdayMap[name]; exists {
+		return birthday, nil
 	}
 	return nil, nil
 }
