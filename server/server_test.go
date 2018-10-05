@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/yoonsue/labchat/function/birthday"
 	"github.com/yoonsue/labchat/function/menu"
 	"github.com/yoonsue/labchat/function/phone"
 	"github.com/yoonsue/labchat/function/status"
@@ -17,15 +18,17 @@ func TestNewServer(t *testing.T) {
 	var ms menu.Service
 	var ps phone.Service
 	var ss status.Service
+	var bs birthday.Service
 	s := Server{
 		cfg: &Config{
 			Address: "localhost:8080",
 		},
-		menuService:   ms,
-		phoneService:  ps,
-		statusService: ss,
+		menuService:     ms,
+		phoneService:    ps,
+		statusService:   ss,
+		birthdayService: bs,
 	}
-	gotServer, _ := NewServer(s.cfg, ms, ps, ss)
+	gotServer, _ := NewServer(s.cfg, ms, ps, ss, bs)
 	if s.cfg != gotServer.cfg {
 		t.Errorf("expected %s, got %s", s.cfg, gotServer.cfg)
 	}

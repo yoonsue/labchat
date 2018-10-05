@@ -66,7 +66,7 @@ func Bootstrap() {
 		session.SetMode(mgo.Monotonic, true)
 		menus, _ = mongo.NewMenuRepository(session)
 		phonebook, _ = mongo.NewPhoneRepository(session)
-		// birthdayList, _ = mongo.NewBirthdayRepository(session)
+		birthdayList, _ = mongo.NewBirthdayRepository(session)
 		log.Println("create the mongoDB session")
 	} else {
 		log.Fatalf("unsupported database type: %s", yamlConfig.Database)
