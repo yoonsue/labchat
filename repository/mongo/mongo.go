@@ -123,7 +123,7 @@ func (r *PhoneRepository) Find(dept phone.Department) ([]*phone.Phone, error) {
 	var mongoPhoneList []*phone.Phone
 	// var resultPhoneList []*phone.Phone
 
-	if err := c.Find(bson.M{"Department": bson.M{"$in.Department": dept.ToString()}}).All(&mongoPhoneList); err != nil {
+	if err := c.Find(bson.M{"Department": bson.RegEx{".*" + dept.ToString() + ".*", ""}}).All(&mongoPhoneList); err != nil {
 		if err == mgo.ErrNotFound {
 			return nil, err
 		}
