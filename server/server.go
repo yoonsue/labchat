@@ -207,7 +207,7 @@ var menuURLMap = []string{"https://www.hanyang.ac.kr/web/www/re11",
 
 func (s *Server) msgFor(request []string) string {
 	if request[0] == "도움말" {
-		str := "LABchat에 오신걸 환영합니다.\nLABchat은 다음과 같은 기능을 제공합니다.\n - 서버상태 정보(status)\n - 내선번호 검색 기능(phone 사이버피지컬시스템연구실(CPS))\n - 교내식당 메뉴 정보 제공(menu)\n"
+		str := "LABchat에 오신걸 환영합니다.\nLABchat은 다음과 같은 기능을 제공합니다.\n - 서버상태 정보(status)\n - 내선번호 검색 기능(phone 사이버피지컬)\n - 교내식당 메뉴 정보 제공(menu)\n - 연구실 내 구성원 생일 정보 제공(birthday 이름)\n"
 		return str
 	}
 	if request[0] == "시작하기" {
