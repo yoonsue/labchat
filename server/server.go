@@ -245,9 +245,12 @@ func (s *Server) msgFor(request []string) string {
 		if p == nil {
 			str += "No result.."
 		} else {
-			str += string(p.Department)
-			str += "\t"
-			str += p.Extension
+			for _, val := range p {
+				str += string(val.Department)
+				str += "\t"
+				str += val.Extension
+				str += "\n"
+			}
 		}
 		return str
 	}

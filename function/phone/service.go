@@ -12,7 +12,7 @@ import (
 
 // Service declares the methods that phone service provides.
 type Service interface {
-	GetPhone(department phone.Department) (*phone.Phone, error)
+	GetPhone(department phone.Department) ([]*phone.Phone, error)
 	IntialStore(fpath string) error
 }
 
@@ -21,7 +21,7 @@ type service struct {
 }
 
 // GetPhone finds phone number in repository and returns it.
-func (s *service) GetPhone(department phone.Department) (*phone.Phone, error) {
+func (s *service) GetPhone(department phone.Department) ([]*phone.Phone, error) {
 	resPhone, err := s.phonebook.Find(department)
 	if err != nil {
 		log.Println(errors.Wrap(err, "failed to get phone number"))

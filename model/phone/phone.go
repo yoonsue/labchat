@@ -11,6 +11,11 @@ type Department string
 
 // Repository declares the methods that repository provides.
 type Repository interface {
-	Find(key Department) (*Phone, error)
+	Find(key Department) ([]*Phone, error)
 	Store(key *Phone) error
+}
+
+// ToString converts department type to string.
+func (d Department) ToString() string {
+	return string(d)
 }

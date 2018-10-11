@@ -1,6 +1,7 @@
 package inmem
 
 import (
+	"strings"
 	"sync"
 
 	"github.com/yoonsue/labchat/model/birthday"
@@ -51,33 +52,6 @@ func (r *MenuRepository) FindAll() []*menu.Menu {
 	return c
 }
 
-// // menuURLMap
-// var menuURLMap = map[string]string{
-// 	"교직원식당":   "http://www.hanyang.ac.kr/web/www/-254",
-// 	"학생식당":    "http://www.hanyang.ac.kr/web/www/-255",
-// 	"창업보육센터":  "http://www.hanyang.ac.kr/web/www/-258",
-// 	"창의인재원식당": "http://www.hanyang.ac.kr/web/www/-256",
-// }
-
-// var menuMap = map[string]string{
-// 	"창의인재원":  "",
-// 	"학생식당":   "",
-// 	"교직원식당":  "",
-// 	"창업보육센터": "",
-// }
-
-// func allMenu() string {
-// 	str := ""
-// 	for key := range menuMap {
-// 		str += key
-// 		str += "\t"
-// 		str += menuMap[key]
-// 		str += "\n"
-// 		fmt.Printf("key: %s\tvalue: %s", key, menuMap[key])
-// 	}
-// 	return str
-// }
-
 // PhoneRepository struct definition.
 type PhoneRepository struct {
 	mtx      sync.RWMutex
@@ -100,13 +74,17 @@ func (r *PhoneRepository) Store(target *phone.Phone) error {
 }
 
 // Find returns phone that match with the given restaurant.
-func (r *PhoneRepository) Find(d phone.Department) (*phone.Phone, error) {
+func (r *PhoneRepository) Find(d phone.Department) ([]*phone.Phone, error) {
 	r.mtx.RLock()
 	defer r.mtx.RUnlock()
-	if phone, exists := r.phoneMap[d]; exists {
-		return phone, nil
+	var phoneList []*phone.Phone
+	for key, phone := range r.phoneMap {
+		if strings.Contains(key.ToString(), d.ToString()) {
+			phoneList = append(phoneList, phone)
+		}
 	}
-	return nil, nil
+	return phoneList, nil
+
 }
 
 // BirthdayRepository struct definition.

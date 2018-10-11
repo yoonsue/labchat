@@ -115,20 +115,24 @@ func (r *PhoneRepository) Store(target *phone.Phone) error {
 }
 
 // Find returns phone model that match with the given deparment.
-func (r *PhoneRepository) Find(dept phone.Department) (*phone.Phone, error) {
+func (r *PhoneRepository) Find(dept phone.Department) ([]*phone.Phone, error) {
 	sess := r.session.Copy()
 	defer sess.Close()
 
 	c := sess.DB(r.db).C("phone")
+	var mongoPhoneList []*phone.Phone
+	// var resultPhoneList []*phone.Phone
 
-	phone := phone.Phone{}
-	if err := c.Find(bson.M{"Department": dept}).One(&phone); err != nil {
+	if err := c.Find(bson.M{"Department": bson.M{"$in.Department": dept.ToString()}}).All(&mongoPhoneList); err != nil {
 		if err == mgo.ErrNotFound {
 			return nil, err
 		}
 		return nil, err
 	}
-	return &phone, nil
+	// for _, phone := range mongoPhoneList {
+	// 	resultPhoneList = append(resultPhoneList, phone)
+	// }
+	return mongoPhoneList, nil
 }
 
 // BirthdayRepository struct definition.
