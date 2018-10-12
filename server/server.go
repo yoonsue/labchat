@@ -265,8 +265,10 @@ func (s *Server) msgFor(request []string) string {
 			str += "No result.."
 		} else {
 			str += b.Name
-			str += "\t"
-			str += strconv.Itoa(b.Birthday)
+			str += "\t나이: "
+			str += strconv.Itoa(b.Age)
+			str += "\t생일: "
+			str += b.Birthday
 		}
 		return str
 	}

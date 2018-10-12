@@ -43,14 +43,18 @@ func (s *service) IntialStore(fpath string) error {
 	log.Println("initial birthday store started")
 	for _, line := range lines {
 		splitLine := strings.Split(line, "\t")
-		name, birth := splitLine[0], splitLine[1]
-		birthInt, err := strconv.Atoi(birth)
+		name, info := splitLine[0], splitLine[1]
+		age, birth := info[:2], info[2:]
+		birth = birth[0:2] + "월 " + birth[2:] + "일"
+		ageInt, err := strconv.Atoi(age)
+		// birthInt, err := strconv.Atoi(birth)
 		if err != nil {
 			log.Println("exten is not int type")
 		}
 		newBirthday := &birthday.Birthday{
 			Name:     name,
-			Birthday: birthInt,
+			Birthday: birth,
+			Age:      (118 - ageInt + 1),
 		}
 		s.birthdayList.Store(newBirthday)
 	}

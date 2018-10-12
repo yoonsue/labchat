@@ -1,9 +1,10 @@
 package birthday
 
-// Brithday = VO
+// Birthday = VO
 type Birthday struct {
 	Name     string
-	Birthday int
+	Birthday string
+	Age      int
 }
 
 // Repository declares the methods that repository provides.
