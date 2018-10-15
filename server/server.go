@@ -208,6 +208,7 @@ var menuURLMap = []string{"https://www.hanyang.ac.kr/web/www/re11",
 func (s *Server) msgFor(request []string) string {
 	str := ""
 	currentTime := time.Now().Local()
+	currentTime = currentTime.Add(time.Hour * (-1) * 9)
 	currentString := currentTime.Format("2006-01-02")
 
 	mapBirthday, _ := s.birthdayService.GetAllBirthday()
