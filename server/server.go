@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
-
 	"github.com/yoonsue/labchat/function/birthday"
 	"github.com/yoonsue/labchat/function/menu"
 	"github.com/yoonsue/labchat/function/phone"
@@ -206,12 +206,26 @@ var menuURLMap = []string{"https://www.hanyang.ac.kr/web/www/re11",
 	"http://www.hanyang.ac.kr/web/www/re15"}
 
 func (s *Server) msgFor(request []string) string {
+	str := ""
+	currentTime := time.Now().Local()
+	currentString := currentTime.Format("2006-01-02")
+
+	mapBirthday, _ := s.birthdayService.GetAllBirthday()
+	for _, tmp := range mapBirthday {
+		// var tmpBirth []
+		tmpBirth := tmp.GetBirth()
+		if (tmpBirth[:2] == currentString[5:7]) && (tmpBirth[6:8] == currentString[8:10]) {
+			str += "(축하)오늘은 "
+			str += tmp.Name
+			str += "의 생일입니다.(축하)\n"
+		}
+	}
 	if request[0] == "도움말" {
-		str := "LABchat에 오신걸 환영합니다.\nLABchat은 다음과 같은 기능을 제공합니다.\n - 서버상태 정보(status)\n - 내선번호 검색 기능(phone 사이버피지컬)\n - 교내식당 메뉴 정보 제공(menu)\n - 연구실 내 구성원 생일 정보 제공(birthday 이름)\n"
+		str += "LABchat에 오신걸 환영합니다.\nLABchat은 다음과 같은 기능을 제공합니다.\n - 서버상태 정보(status)\n - 내선번호 검색 기능(phone 사이버피지컬)\n - 교내식당 메뉴 정보 제공(menu)\n - 연구실 내 구성원 생일 정보 제공(birthday 이름)\n"
 		return str
 	}
 	if request[0] == "시작하기" {
-		str := "필요한 기능을 사용해보세요."
+		str += "필요한 기능을 사용해보세요."
 		return str
 	}
 	if request[0] == "status" || request[0] == "Status" || request[0] == "상태" || request[0] == "서버" {
@@ -219,13 +233,12 @@ func (s *Server) msgFor(request []string) string {
 		c := s.statusService.ServerCheck()
 
 		// str := "TIME : " + c.Time()
-		str := "TEMP : " + c.Temperature.String()
+		str += "TEMP : " + c.Temperature.String()
 		str += "\nUPTIME: " + statusModel.FmtDuration(c.Uptime)
 
 		return str
 	}
 	if request[0] == "menu" || request[0] == "Menu" || request[0] == "학식" || request[0] == "메뉴" {
-		str := ""
 		for _, menuURL := range menuURLMap {
 			menu := s.menuService.GetSchool(menuURL)
 			str += string(menu.Restaurant)
@@ -241,7 +254,6 @@ func (s *Server) msgFor(request []string) string {
 		}
 		department := phoneModel.Department(request[1])
 		p, _ := s.phoneService.GetPhone(department)
-		str := ""
 		if p == nil {
 			str += "No result.."
 		} else {
@@ -260,15 +272,14 @@ func (s *Server) msgFor(request []string) string {
 		}
 		name := request[1]
 		b, _ := s.birthdayService.GetBirthday(name)
-		str := ""
 		if b == nil {
 			str += "No result.."
 		} else {
 			str += b.Name
 			str += "\t나이: "
-			str += strconv.Itoa(b.Age)
+			str += strconv.Itoa(b.GetAge())
 			str += "\t생일: "
-			str += b.Birthday
+			str += b.GetBirth()
 		}
 		return str
 	}

@@ -1,12 +1,11 @@
 package mongo
 
 import (
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
-
 	"github.com/yoonsue/labchat/model/birthday"
 	"github.com/yoonsue/labchat/model/menu"
 	"github.com/yoonsue/labchat/model/phone"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // MenuRepository struct definition
@@ -194,4 +193,21 @@ func (r *BirthdayRepository) Find(name string) (*birthday.Birthday, error) {
 		return nil, err
 	}
 	return &birthday, nil
+}
+
+// FindAll returns birthday model that match with the given name.
+func (r *BirthdayRepository) FindAll() ([]*birthday.Birthday, error) {
+	sess := r.session.Copy()
+	defer sess.Close()
+
+	c := sess.DB(r.db).C("birthday")
+
+	var result []*birthday.Birthday
+	if err := c.Find(nil).All(&result); err != nil {
+		if err == mgo.ErrNotFound {
+			return nil, err
+		}
+		return nil, err
+	}
+	return result, nil
 }

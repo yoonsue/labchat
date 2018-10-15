@@ -14,6 +14,7 @@ import (
 // Service declares the methods that phone service provides.
 type Service interface {
 	GetBirthday(name string) (*birthday.Birthday, error)
+	GetAllBirthday() ([]*birthday.Birthday, error)
 	IntialStore(fpath string) error
 }
 
@@ -25,7 +26,17 @@ type service struct {
 func (s *service) GetBirthday(name string) (*birthday.Birthday, error) {
 	resBirthday, err := s.birthdayList.Find(name)
 	if err != nil {
-		log.Println(errors.Wrap(err, "failed to get phone number"))
+		log.Println(errors.Wrap(err, "failed to get birthday from name"))
+		return nil, err
+	}
+	return resBirthday, nil
+}
+
+// GetAllBirthday finds all birthday list in repository and returns it.
+func (s *service) GetAllBirthday() ([]*birthday.Birthday, error) {
+	resBirthday, err := s.birthdayList.FindAll()
+	if err != nil {
+		log.Println(errors.Wrap(err, "failed to get birthday list"))
 		return nil, err
 	}
 	return resBirthday, nil
@@ -33,9 +44,6 @@ func (s *service) GetBirthday(name string) (*birthday.Birthday, error) {
 
 // IntialStore stores birthday list in repository.
 func (s *service) IntialStore(fpath string) error {
-	// TO BE IMPLEMENTED:
-	// 1. store at the repository
-	// 2. where to put this fuction(maybe NewService)
 	lines, err := readLines(fpath)
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "failed to read lines from phone path"))
@@ -43,18 +51,14 @@ func (s *service) IntialStore(fpath string) error {
 	log.Println("initial birthday store started")
 	for _, line := range lines {
 		splitLine := strings.Split(line, "\t")
-		name, info := splitLine[0], splitLine[1]
-		age, birth := info[:2], info[2:]
-		birth = birth[0:2] + "월 " + birth[2:] + "일"
-		ageInt, err := strconv.Atoi(age)
-		// birthInt, err := strconv.Atoi(birth)
+		name, birth := splitLine[0], splitLine[1]
+		birthInt, err := strconv.Atoi(birth)
 		if err != nil {
 			log.Println("exten is not int type")
 		}
 		newBirthday := &birthday.Birthday{
-			Name:     name,
-			Birthday: birth,
-			Age:      (118 - ageInt + 1),
+			Name:        name,
+			DateOfBirth: birthInt,
 		}
 		s.birthdayList.Store(newBirthday)
 	}

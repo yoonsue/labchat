@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	"github.com/yoonsue/labchat/model/birthday"
-
 	"github.com/yoonsue/labchat/model/menu"
 	"github.com/yoonsue/labchat/model/phone"
 )
@@ -116,4 +115,16 @@ func (r *BirthdayRepository) Find(name string) (*birthday.Birthday, error) {
 		return birthday, nil
 	}
 	return nil, nil
+}
+
+// FindAll returns phone that match with the given restaurant.
+func (r *BirthdayRepository) FindAll() ([]*birthday.Birthday, error) {
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
+
+	b := make([]*birthday.Birthday, 0, len(r.birthdayMap))
+	for _, val := range r.birthdayMap {
+		b = append(b, val)
+	}
+	return b, nil
 }
