@@ -33,6 +33,7 @@ func (b Birthday) GetAge() int {
 	return (100 + currentYear - year + 1)
 }
 
+// GetBirth returns the birth as form "00월 00일".
 func (b Birthday) GetBirth() string {
 	month := (b.DateOfBirth % 10000) / 100
 	strMonth := fmt.Sprintf("%02d", month)

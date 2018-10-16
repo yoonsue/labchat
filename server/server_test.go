@@ -41,14 +41,16 @@ func TestStart(t *testing.T) {
 	var ms menu.Service
 	var ps phone.Service
 	var ss status.Service
+	var bs birthday.Service
 
 	s := Server{
 		cfg: &Config{
 			Address: "localhost:8080",
 		},
-		menuService:   ms,
-		phoneService:  ps,
-		statusService: ss,
+		menuService:     ms,
+		phoneService:    ps,
+		statusService:   ss,
+		birthdayService: bs,
 	}
 	gotMux := s.Start()
 
