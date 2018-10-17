@@ -272,29 +272,48 @@ func TestChatroomDeleteHandler(t *testing.T) {
 }
 
 func TestMsgFor(t *testing.T) {
-	r := inmem.NewMenuRepository()
-	ms := menu.NewService(r)
+	mr := inmem.NewMenuRepository()
+	ms := menu.NewService(mr)
 	var ss status.Service
+	br := inmem.NewBirthdayRepository()
+	bs := birthday.NewService(br)
 
 	s := Server{
 		cfg: &Config{
 			Address: "localhost:8080",
 		},
-		menuService:   ms,
-		statusService: ss,
+		menuService:     ms,
+		statusService:   ss,
+		birthdayService: bs,
 	}
 
 	testCases := []struct {
 		input    []string
 		expected string
 	}{
+		{
+			strings.Fields("도움말"),
+			"LABchat",
+		},
+		{
+			strings.Fields("시작하기"),
+			"필요한",
+		},
 		// {
 		// 	strings.Fields("status"),
-		// 	"TEMP : ",
-		// },
+		// 	"TEMP",
+		// }, test
 		{
 			strings.Fields("menu"),
 			"교직원식당",
+		},
+		{
+			strings.Fields("phone"),
+			"no department",
+		},
+		{
+			strings.Fields("생일"),
+			"no name",
 		},
 		{
 			strings.Fields("hello"),
