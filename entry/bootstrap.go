@@ -6,8 +6,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"gopkg.in/mgo.v2"
-
 	"github.com/pkg/errors"
 	birthdayFunction "github.com/yoonsue/labchat/function/birthday"
 	menuFunction "github.com/yoonsue/labchat/function/menu"
@@ -20,6 +18,7 @@ import (
 	"github.com/yoonsue/labchat/repository/inmem"
 	"github.com/yoonsue/labchat/repository/mongo"
 	"github.com/yoonsue/labchat/server"
+	"gopkg.in/mgo.v2"
 )
 
 // defaultConfigPath is the default location where labchat looks for
@@ -75,12 +74,12 @@ func Bootstrap() {
 	var ms menuFunction.Service
 	ms = menuFunction.NewService(menus)
 	var ps phoneFunction.Service
-	ps = phoneFunction.NewService(phonebook)
+	ps = phoneFunction.NewService(phonebook, defaultPhonePath)
 	statusServer := statusModel.NewServer()
 	var ss statusFunction.Service
 	ss = statusFunction.NewService(statusServer)
 	var bs birthdayFunction.Service
-	bs = birthdayFunction.NewService(birthdayList)
+	bs = birthdayFunction.NewService(birthdayList, defaultBirthdayPath)
 
 	serverConfig := server.DefaultConfig()
 	serverConfig.Address = yamlConfig.Address
@@ -91,10 +90,6 @@ func Bootstrap() {
 		log.Fatal(errors.Wrap(err, "failed to create labchat server"))
 	}
 	log.Println("create the labchat server")
-
-	// TO BE CONSIDERED: it would be inside of NewServer.
-	ps.IntialStore(defaultPhonePath)
-	bs.IntialStore(defaultBirthdayPath)
 
 	labchat.Start()
 	log.Printf("run the labchat server at %s", serverConfig.Address)

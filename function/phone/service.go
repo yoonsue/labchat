@@ -13,7 +13,6 @@ import (
 // Service declares the methods that phone service provides.
 type Service interface {
 	GetPhone(department phone.Department) ([]*phone.Phone, error)
-	IntialStore(fpath string) error
 }
 
 type service struct {
@@ -31,7 +30,7 @@ func (s *service) GetPhone(department phone.Department) ([]*phone.Phone, error) 
 }
 
 // IntialStore stores all phone in repository.
-func (s *service) IntialStore(fpath string) error {
+func (s *service) intialStore(fpath string) error {
 	// TO BE IMPLEMENTED:
 	// 1. store at the repository
 	// 2. where to put this fuction(maybe NewService)
@@ -80,8 +79,10 @@ func readLines(path string) ([]string, error) {
 }
 
 // NewService return struct which provides Service interface
-func NewService(r phone.Repository) Service {
-	return &service{
+func NewService(r phone.Repository, fpath string) Service {
+	s := &service{
 		phonebook: r,
 	}
+	s.intialStore(fpath)
+	return s
 }

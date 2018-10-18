@@ -1,9 +1,12 @@
 package server
 
 import (
+	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -272,11 +275,24 @@ func TestChatroomDeleteHandler(t *testing.T) {
 }
 
 func TestMsgFor(t *testing.T) {
+	tmpFile, err := ioutil.TempFile("", "tmpBirth")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("Temp file created:", tmpFile.Name())
+
+	defer os.Remove(tmpFile.Name())
+	defer tmpFile.Close()
+
+	if _, err = tmpFile.Write([]byte("조윤수\t960116\n")); err != nil {
+		t.Fatal(err)
+	}
+
 	mr := inmem.NewMenuRepository()
 	ms := menu.NewService(mr)
 	var ss status.Service
 	br := inmem.NewBirthdayRepository()
-	bs := birthday.NewService(br)
+	bs := birthday.NewService(br, tmpFile.Name())
 
 	s := Server{
 		cfg: &Config{

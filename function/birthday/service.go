@@ -16,7 +16,6 @@ import (
 type Service interface {
 	GetBirthday(name string) (*birthday.Birthday, error)
 	CheckBirthday() []*birthday.Birthday
-	IntialStore(fpath string) error
 }
 
 type service struct {
@@ -61,7 +60,7 @@ func (s *service) CheckBirthday() []*birthday.Birthday {
 }
 
 // IntialStore stores birthday list in repository.
-func (s *service) IntialStore(fpath string) error {
+func (s *service) intialStore(fpath string) error {
 	lines, err := readLines(fpath)
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "failed to read lines from phone path"))
@@ -101,8 +100,10 @@ func readLines(path string) ([]string, error) {
 }
 
 // NewService return struct which provides Service interface
-func NewService(r birthday.Repository) Service {
-	return &service{
+func NewService(r birthday.Repository, fpath string) Service {
+	s := &service{
 		birthdayList: r,
 	}
+	s.intialStore(fpath)
+	return s
 }
