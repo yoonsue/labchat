@@ -24,6 +24,7 @@ type Address string
 // Server provides http service for the labchat service.
 type Server struct {
 	// TODO: implementation.
+	currentTime     string
 	cfg             *Config
 	menuService     menu.Service
 	phoneService    phone.Service
@@ -32,8 +33,9 @@ type Server struct {
 }
 
 // NewServer creates a new labchat server with the given configuration.
-func NewServer(cfg *Config, ms menu.Service, ps phone.Service, ss status.Service, bs birthday.Service) (srv *Server, err error) {
+func NewServer(curTime string, cfg *Config, ms menu.Service, ps phone.Service, ss status.Service, bs birthday.Service) (srv *Server, err error) {
 	return &Server{
+		currentTime:     curTime,
 		cfg:             cfg,
 		menuService:     ms,
 		phoneService:    ps,
@@ -210,7 +212,7 @@ func (s *Server) msgFor(request []string) string {
 	switch request[0] {
 
 	case "도움말":
-		todayIsBirthdayList := s.birthdayService.CheckBirthday()
+		todayIsBirthdayList := s.birthdayService.CheckBirthday(s.currentTime)
 		for _, tmp := range todayIsBirthdayList {
 			str += "(축하)오늘은 "
 			str += tmp.Name
@@ -221,7 +223,7 @@ func (s *Server) msgFor(request []string) string {
 		return str
 
 	case "시작하기":
-		todayIsBirthdayList := s.birthdayService.CheckBirthday()
+		todayIsBirthdayList := s.birthdayService.CheckBirthday(s.currentTime)
 		for _, tmp := range todayIsBirthdayList {
 			str += "(축하)오늘은 "
 			str += tmp.Name

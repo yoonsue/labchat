@@ -3,6 +3,7 @@ package birthday
 import (
 	"io/ioutil"
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/yoonsue/labchat/model/birthday"
@@ -66,23 +67,14 @@ func TestCheckBirthday(t *testing.T) {
 
 	r := inmem.NewBirthdayRepository()
 	s := NewService(r, tmpFile.Name())
-	testCases := []struct {
-		expected []*birthday.Birthday
-	}{
-		{
-			{
-				birthday.Birthday{Name: "name1",
-					DateOfBirth: 900116},
-				birthday.Birthday{Name: "name3",
-					DateOfBirth: 990116},
-			},
-		},
+	expected := []*birthday.Birthday{
+		{Name: "name1", DateOfBirth: 900116},
+		{Name: "name3", DateOfBirth: 990116},
 	}
-	for _, c := range testCases {
-		gotBirth := s.CheckBirthday()
-		if c.expected != gotBirth {
-			t.Errorf("expected []*birthday.Birthday differs with gotten one")
-		}
+
+	gotBirth := s.CheckBirthday(cS)
+	if reflect.DeepEqual(gotBirth, expected) {
+		t.Errorf("expected []*birthday.Birthday differs with gotten one")
 	}
 
 }

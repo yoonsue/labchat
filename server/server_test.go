@@ -31,7 +31,7 @@ func TestNewServer(t *testing.T) {
 		statusService:   ss,
 		birthdayService: bs,
 	}
-	gotServer, _ := NewServer(s.cfg, ms, ps, ss, bs)
+	gotServer, _ := NewServer(s.currentTime, s.cfg, ms, ps, ss, bs)
 	if s.cfg != gotServer.cfg {
 		t.Errorf("expected %s, got %s", s.cfg, gotServer.cfg)
 	}
@@ -295,6 +295,7 @@ func TestMsgFor(t *testing.T) {
 	bs := birthday.NewService(br, tmpFile.Name())
 
 	s := Server{
+		currentTime: "0000-00-00",
 		cfg: &Config{
 			Address: "localhost:8080",
 		},

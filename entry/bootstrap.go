@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/pkg/errors"
 	birthdayFunction "github.com/yoonsue/labchat/function/birthday"
@@ -34,6 +35,10 @@ const defaultBirthdayPath = "./birthday.txt"
 // of the system, and injects the dependencies according to its hierarchy.
 func Bootstrap() {
 	// TODO: load the configuration.
+
+	currentTime := time.Now().Local()
+	currentTime = currentTime.Add(time.Hour * (-1) * 9)
+	currentString := currentTime.Format("2006-01-02")
 
 	resource, _ := setLog(defaultLogPath)
 	log.Println("bootstrap the labchat service")
@@ -85,7 +90,7 @@ func Bootstrap() {
 	serverConfig.Address = yamlConfig.Address
 	log.Println("make server configuration")
 
-	labchat, err := server.NewServer(serverConfig, ms, ps, ss, bs)
+	labchat, err := server.NewServer(currentString, serverConfig, ms, ps, ss, bs)
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "failed to create labchat server"))
 	}

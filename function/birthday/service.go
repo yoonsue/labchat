@@ -6,7 +6,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/pkg/errors"
 	"github.com/yoonsue/labchat/model/birthday"
@@ -15,7 +14,7 @@ import (
 // Service declares the methods that phone service provides.
 type Service interface {
 	GetBirthday(name string) (*birthday.Birthday, error)
-	CheckBirthday() []*birthday.Birthday
+	CheckBirthday(time string) []*birthday.Birthday
 }
 
 type service struct {
@@ -43,16 +42,13 @@ func (s *service) getAllBirthday() ([]*birthday.Birthday, error) {
 }
 
 // CheckBirthday finds the name list matching birhtday with today in repository and returns it.
-func (s *service) CheckBirthday() []*birthday.Birthday {
-	currentTime := time.Now().Local()
-	currentTime = currentTime.Add(time.Hour * (-1) * 9)
-	currentString := currentTime.Format("2006-01-02")
+func (s *service) CheckBirthday(time string) []*birthday.Birthday {
 
 	var todayIsBirthList []*birthday.Birthday
 	mapBirthday, _ := s.getAllBirthday()
 	for _, tmp := range mapBirthday {
 		tmpBirth := tmp.GetBirth()
-		if (tmpBirth[:2] == currentString[5:7]) && (tmpBirth[6:8] == currentString[8:10]) {
+		if (tmpBirth[:2] == time[5:7]) && (tmpBirth[6:8] == time[8:10]) {
 			todayIsBirthList = append(todayIsBirthList, tmp)
 		}
 	}
