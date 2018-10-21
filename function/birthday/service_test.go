@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/yoonsue/labchat/model/birthday"
 	"github.com/yoonsue/labchat/repository/inmem"
 )
 
@@ -46,9 +47,43 @@ func TestGetBirthday(t *testing.T) {
 			t.Errorf("expected %d, got %d", c.expectedDate, gotBirth.DateOfBirth)
 		}
 	}
-
 }
+
 func TestCheckBirthday(t *testing.T) {
+	cS := "2018-01-16"
+
+	tmpFile, err := ioutil.TempFile("", "tmpBirth")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpFile.Name())
+	defer tmpFile.Close()
+
+	_, err = tmpFile.Write([]byte("name1\t900116\nname2\t881116\nsue\t990116\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	r := inmem.NewBirthdayRepository()
+	s := NewService(r, tmpFile.Name())
+	testCases := []struct {
+		expected []*birthday.Birthday
+	}{
+		{
+			{
+				birthday.Birthday{Name: "name1",
+					DateOfBirth: 900116},
+				birthday.Birthday{Name: "name3",
+					DateOfBirth: 990116},
+			},
+		},
+	}
+	for _, c := range testCases {
+		gotBirth := s.CheckBirthday()
+		if c.expected != gotBirth {
+			t.Errorf("expected []*birthday.Birthday differs with gotten one")
+		}
+	}
 
 }
 func TestIntialStore(t *testing.T) {
