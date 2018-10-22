@@ -13,6 +13,7 @@ type Department string
 type Repository interface {
 	Find(key Department) ([]*Phone, error)
 	Store(key *Phone) error
+	Clean() error
 }
 
 // ToString converts department type to string.

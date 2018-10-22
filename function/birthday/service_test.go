@@ -81,3 +81,30 @@ func TestCheckBirthday(t *testing.T) {
 func TestIntialStore(t *testing.T) {
 
 }
+
+func TestNewService(t *testing.T) {
+	tmpFile, err := ioutil.TempFile("", "tmpBirth")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpFile.Name())
+	defer tmpFile.Close()
+
+	_, err = tmpFile.Write([]byte("name1\t900116\nname2\t881116\nsue\t990116\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	r := inmem.NewBirthdayRepository()
+	gotService := NewService(r, tmpFile.Name())
+
+	s := &service{
+		birthdayList: r,
+	}
+
+	expected, _ := s.GetBirthday("name1")
+	got, _ := gotService.GetBirthday("name1")
+	if expected.DateOfBirth != got.DateOfBirth {
+		t.Errorf("expected %d, got %d", expected.DateOfBirth, got.DateOfBirth)
+	}
+}

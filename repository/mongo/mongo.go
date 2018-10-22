@@ -10,15 +10,17 @@ import (
 
 // MenuRepository struct definition
 type MenuRepository struct {
-	db      string
-	session *mgo.Session
+	db         string
+	session    *mgo.Session
+	collection string
 }
 
 // NewMenuRepository does several services according to MongoDB
-func NewMenuRepository(session *mgo.Session) (menu.Repository, error) {
+func NewMenuRepository(session *mgo.Session, collection string) (menu.Repository, error) {
 	r := &MenuRepository{
-		db:      "mongo",
-		session: session,
+		db:         "mongo",
+		session:    session,
+		collection: collection,
 	}
 
 	index := mgo.Index{
@@ -32,7 +34,7 @@ func NewMenuRepository(session *mgo.Session) (menu.Repository, error) {
 	sess := r.session.Copy()
 	defer sess.Close()
 
-	c := sess.DB(r.db).C("menu")
+	c := sess.DB(r.db).C(r.collection)
 
 	if err := c.EnsureIndex(index); err != nil {
 		return nil, err
@@ -45,7 +47,7 @@ func (r *MenuRepository) Store(target *menu.Menu) error {
 	sess := r.session.Copy()
 	defer sess.Close()
 
-	c := sess.DB(r.db).C("menu")
+	c := sess.DB(r.db).C(r.collection)
 
 	_, err := c.Upsert(bson.M{"Restaurant": target.Restaurant}, bson.M{"$set": target})
 
@@ -57,7 +59,7 @@ func (r *MenuRepository) Find(rest menu.Restaurant) (*menu.Menu, error) {
 	sess := r.session.Copy()
 	defer sess.Close()
 
-	c := sess.DB(r.db).C("menu")
+	c := sess.DB(r.db).C(r.collection)
 
 	menu := menu.Menu{}
 	if err := c.Find(bson.M{"Restaurant": rest}).One(&menu); err != nil {
@@ -69,17 +71,25 @@ func (r *MenuRepository) Find(rest menu.Restaurant) (*menu.Menu, error) {
 	return &menu, nil
 }
 
+// Clean the menu repository.
+func (r *MenuRepository) Clean() error {
+	r.session.DB(r.db).C(r.collection).RemoveAll(nil)
+	return nil
+}
+
 // PhoneRepository struct definition.
 type PhoneRepository struct {
-	db      string
-	session *mgo.Session
+	db         string
+	session    *mgo.Session
+	collection string
 }
 
 // NewPhoneRepository return a new instance of MongoDB phone repository.
-func NewPhoneRepository(session *mgo.Session) (phone.Repository, error) {
+func NewPhoneRepository(session *mgo.Session, collection string) (phone.Repository, error) {
 	r := &PhoneRepository{
-		db:      "mongo",
-		session: session,
+		db:         "mongo",
+		session:    session,
+		collection: collection,
 	}
 
 	index := mgo.Index{
@@ -93,7 +103,7 @@ func NewPhoneRepository(session *mgo.Session) (phone.Repository, error) {
 	sess := r.session.Copy()
 	defer sess.Close()
 
-	c := sess.DB(r.db).C("phone")
+	c := sess.DB(r.db).C(collection)
 
 	if err := c.EnsureIndex(index); err != nil {
 		return nil, err
@@ -106,7 +116,7 @@ func (r *PhoneRepository) Store(target *phone.Phone) error {
 	sess := r.session.Copy()
 	defer sess.Close()
 
-	c := sess.DB(r.db).C("phone")
+	c := sess.DB(r.db).C(r.collection)
 
 	_, err := c.Upsert(bson.M{"Department": target.Department}, bson.M{"$set": target})
 
@@ -118,7 +128,7 @@ func (r *PhoneRepository) Find(dept phone.Department) ([]*phone.Phone, error) {
 	sess := r.session.Copy()
 	defer sess.Close()
 
-	c := sess.DB(r.db).C("phone")
+	c := sess.DB(r.db).C(r.collection)
 	var mongoPhoneList []*phone.Phone
 	// var resultPhoneList []*phone.Phone
 
@@ -134,17 +144,25 @@ func (r *PhoneRepository) Find(dept phone.Department) ([]*phone.Phone, error) {
 	return mongoPhoneList, nil
 }
 
+// Clean the phone repository.
+func (r *PhoneRepository) Clean() error {
+	r.session.DB(r.db).C(r.collection).RemoveAll(nil)
+	return nil
+}
+
 // BirthdayRepository struct definition.
 type BirthdayRepository struct {
-	db      string
-	session *mgo.Session
+	db         string
+	session    *mgo.Session
+	collection string
 }
 
 // NewBirthdayRepository return a new instance of MongoDB phone repository.
-func NewBirthdayRepository(session *mgo.Session) (birthday.Repository, error) {
+func NewBirthdayRepository(session *mgo.Session, collection string) (birthday.Repository, error) {
 	r := &BirthdayRepository{
-		db:      "mongo",
-		session: session,
+		db:         "mongo",
+		session:    session,
+		collection: collection,
 	}
 
 	index := mgo.Index{
@@ -158,7 +176,7 @@ func NewBirthdayRepository(session *mgo.Session) (birthday.Repository, error) {
 	sess := r.session.Copy()
 	defer sess.Close()
 
-	c := sess.DB(r.db).C("birthday")
+	c := sess.DB(r.db).C(r.collection)
 
 	if err := c.EnsureIndex(index); err != nil {
 		return nil, err
@@ -171,7 +189,7 @@ func (r *BirthdayRepository) Store(target *birthday.Birthday) error {
 	sess := r.session.Copy()
 	defer sess.Close()
 
-	c := sess.DB(r.db).C("birthday")
+	c := sess.DB(r.db).C(r.collection)
 
 	_, err := c.Upsert(bson.M{"Name": target.Name}, bson.M{"$set": target})
 
@@ -183,7 +201,7 @@ func (r *BirthdayRepository) Find(name string) (*birthday.Birthday, error) {
 	sess := r.session.Copy()
 	defer sess.Close()
 
-	c := sess.DB(r.db).C("birthday")
+	c := sess.DB(r.db).C(r.collection)
 
 	birthday := birthday.Birthday{}
 	if err := c.Find(bson.M{"Name": name}).One(&birthday); err != nil {
@@ -200,7 +218,7 @@ func (r *BirthdayRepository) FindAll() ([]*birthday.Birthday, error) {
 	sess := r.session.Copy()
 	defer sess.Close()
 
-	c := sess.DB(r.db).C("birthday")
+	c := sess.DB(r.db).C(r.collection)
 
 	var result []*birthday.Birthday
 	if err := c.Find(nil).All(&result); err != nil {
@@ -210,4 +228,11 @@ func (r *BirthdayRepository) FindAll() ([]*birthday.Birthday, error) {
 		return nil, err
 	}
 	return result, nil
+}
+
+// Clean the birthday repository.
+func (r *BirthdayRepository) Clean() error {
+	/////////////// HOW CAN I CHECK COLLECTION REMOVED???
+	r.session.DB(r.db).C(r.collection).RemoveAll(nil)
+	return nil
 }

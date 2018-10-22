@@ -51,6 +51,15 @@ func (r *MenuRepository) FindAll() []*menu.Menu {
 	return c
 }
 
+// Clean the menu repository.
+func (r *MenuRepository) Clean() error {
+	m := r.menuMap
+	for k := range m {
+		delete(m, k)
+	}
+	return nil
+}
+
 // PhoneRepository struct definition.
 type PhoneRepository struct {
 	mtx      sync.RWMutex
@@ -83,7 +92,15 @@ func (r *PhoneRepository) Find(d phone.Department) ([]*phone.Phone, error) {
 		}
 	}
 	return phoneList, nil
+}
 
+// Clean the phone repository.
+func (r *PhoneRepository) Clean() error {
+	m := r.phoneMap
+	for k := range m {
+		delete(m, k)
+	}
+	return nil
 }
 
 // BirthdayRepository struct definition.
@@ -127,4 +144,13 @@ func (r *BirthdayRepository) FindAll() ([]*birthday.Birthday, error) {
 		b = append(b, val)
 	}
 	return b, nil
+}
+
+// Clean the birthday repository.
+func (r *BirthdayRepository) Clean() error {
+	m := r.birthdayMap
+	for k := range m {
+		delete(m, k)
+	}
+	return nil
 }

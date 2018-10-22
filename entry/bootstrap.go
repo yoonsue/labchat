@@ -68,9 +68,9 @@ func Bootstrap() {
 		}
 		defer session.Close()
 		session.SetMode(mgo.Monotonic, true)
-		menus, _ = mongo.NewMenuRepository(session)
-		phonebook, _ = mongo.NewPhoneRepository(session)
-		birthdayList, _ = mongo.NewBirthdayRepository(session)
+		menus, _ = mongo.NewMenuRepository(session, "menu")
+		phonebook, _ = mongo.NewPhoneRepository(session, "phone")
+		birthdayList, _ = mongo.NewBirthdayRepository(session, "birthday")
 		log.Println("create the mongoDB session")
 	} else {
 		log.Fatalf("unsupported database type: %s", yamlConfig.Database)
@@ -108,6 +108,9 @@ func Bootstrap() {
 			log.Println("received stop signal from OS")
 			log.Println("good bye :)")
 			resource.cleanup()
+			menus.Clean()
+			phonebook.Clean()
+			birthdayList.Clean()
 			return
 		}
 	}
@@ -120,4 +123,5 @@ func Bootstrap() {
 func (r *Resource) cleanup() {
 	// TODO: implementation.
 	r.cleanLog()
+
 }

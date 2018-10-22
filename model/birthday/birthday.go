@@ -18,6 +18,7 @@ type Repository interface {
 	Find(key string) (*Birthday, error)
 	FindAll() ([]*Birthday, error)
 	Store(key *Birthday) error
+	Clean() error
 }
 
 // GetAge returns the Age from given year of birth.

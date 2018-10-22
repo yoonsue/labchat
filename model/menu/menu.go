@@ -16,4 +16,5 @@ type TodayMenu string
 type Repository interface {
 	Find(key Restaurant) (*Menu, error)
 	Store(key *Menu) error
+	Clean() error
 }

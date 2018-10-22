@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -279,12 +278,10 @@ func TestMsgFor(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println("Temp file created:", tmpFile.Name())
-
 	defer os.Remove(tmpFile.Name())
 	defer tmpFile.Close()
 
-	if _, err = tmpFile.Write([]byte("조윤수\t960116\n")); err != nil {
+	if _, err = tmpFile.Write([]byte("name1\t960116\n")); err != nil {
 		t.Fatal(err)
 	}
 
