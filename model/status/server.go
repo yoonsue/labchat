@@ -2,7 +2,6 @@ package status
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"time"
 )
@@ -34,7 +33,6 @@ func FmtDuration(d time.Duration) string {
 
 // NewServer fixes the timestamp when the request is arrived.
 func NewServer() Server {
-	log.Println("inside newserver")
 	return Server{
 		BootTime: time.Now().Round(0).Add(time.Second),
 	}

@@ -78,7 +78,28 @@ func TestCheckBirthday(t *testing.T) {
 	}
 
 }
-func TestIntialStore(t *testing.T) {
+
+func TestReadLines(t *testing.T) {
+	tmpFile, err := ioutil.TempFile("", "tmpBirth")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpFile.Name())
+	defer tmpFile.Close()
+
+	_, err = tmpFile.Write([]byte("line1\nline2\tcontent\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := []string{"line1", "line2\tcontent"}
+	gotLines, err := readLines(tmpFile.Name())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(expected, gotLines) {
+		t.Errorf("expected Lines differs with gotten one")
+	}
 
 }
 
@@ -90,7 +111,7 @@ func TestNewService(t *testing.T) {
 	defer os.Remove(tmpFile.Name())
 	defer tmpFile.Close()
 
-	_, err = tmpFile.Write([]byte("name1\t900116\nname2\t881116\nsue\t990116\n"))
+	_, err = tmpFile.Write([]byte("name1\t900116\nname2\t881116\nname3\t990116\n"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -105,6 +126,6 @@ func TestNewService(t *testing.T) {
 	expected, _ := s.GetBirthday("name1")
 	got, _ := gotService.GetBirthday("name1")
 	if expected.DateOfBirth != got.DateOfBirth {
-		t.Errorf("expected %d, got %d", expected.DateOfBirth, got.DateOfBirth)
+		t.Error("NewService error")
 	}
 }

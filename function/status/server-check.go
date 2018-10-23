@@ -64,7 +64,7 @@ func (s *service) ServerCheck() model.Server {
 // }
 
 // ExampleCmdOutput return output of terminal command
-func ExampleCmdOutput(cmd string) ([]byte, error) {
+func exampleCmdOutput(cmd string) ([]byte, error) {
 	out, err := exec.Command("bash", "-c", cmd).Output()
 	if err != nil {
 		log.Fatal(err)
@@ -75,7 +75,7 @@ func ExampleCmdOutput(cmd string) ([]byte, error) {
 
 // getTemp returns server temperature CentOS
 func getTemp() model.Temperature {
-	data, err := ExampleCmdOutput("sensors | grep \"Core 0\"")
+	data, err := exampleCmdOutput("sensors | grep \"Core 0\"")
 	if err != nil {
 		log.Println(errors.Wrap(err, "failed to execute 'sensors' command"))
 		return -1
