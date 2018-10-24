@@ -88,36 +88,6 @@ func TestStart(t *testing.T) {
 		}
 	}
 }
-func TestMessageKey(t *testing.T) {
-	testCases := []struct {
-		key      string
-		expected string
-	}{
-		{
-			"hi",
-			"hello", // TestCase 1
-		},
-		{
-			"hello",
-			"hi",
-		},
-		{
-			"name",
-			"LABchat",
-		},
-		{
-			"no",
-			"none",
-		},
-	}
-
-	for _, c := range testCases {
-		result := messageKey(c.key)
-		if result != c.expected {
-			t.Errorf("expected %s for key %s, got %s", c.expected, c.key, result)
-		}
-	}
-}
 
 var s *Server
 
@@ -273,30 +243,74 @@ func TestChatroomDeleteHandler(t *testing.T) {
 	}
 }
 
+func TestMessageKey(t *testing.T) {
+	testCases := []struct {
+		key      string
+		expected string
+	}{
+		{
+			"hi",
+			"hello", // TestCase 1
+		},
+		{
+			"hello",
+			"hi",
+		},
+		{
+			"name",
+			"LABchat",
+		},
+		{
+			"no",
+			"none",
+		},
+	}
+
+	for _, c := range testCases {
+		result := messageKey(c.key)
+		if result != c.expected {
+			t.Errorf("expected %s for key %s, got %s", c.expected, c.key, result)
+		}
+	}
+}
+
 func TestMsgFor(t *testing.T) {
-	tmpFile, err := ioutil.TempFile("", "tmpBirth")
+	tmpPhoneFile, err := ioutil.TempFile("", "tmpPhone")
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Remove(tmpFile.Name())
-	defer tmpFile.Close()
+	defer os.Remove(tmpPhoneFile.Name())
+	defer tmpPhoneFile.Close()
 
-	if _, err = tmpFile.Write([]byte("name1\t960116\n")); err != nil {
+	if _, err = tmpPhoneFile.Write([]byte("department1\t4748\n")); err != nil {
+		t.Fatal(err)
+	}
+
+	tmpBirthFile, err := ioutil.TempFile("", "tmpPhone")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpBirthFile.Name())
+	defer tmpBirthFile.Close()
+
+	if _, err = tmpBirthFile.Write([]byte("name1\t960116\n")); err != nil {
 		t.Fatal(err)
 	}
 
 	mr := inmem.NewMenuRepository()
 	ms := menu.NewService(mr)
+	pr := inmem.NewPhoneRepository()
+	ps := phone.NewService(pr, tmpPhoneFile.Name())
 	var ss status.Service
 	br := inmem.NewBirthdayRepository()
-	bs := birthday.NewService(br, tmpFile.Name())
-
+	bs := birthday.NewService(br, tmpBirthFile.Name())
 	s := Server{
 		currentTime: "0000-00-00",
 		cfg: &Config{
 			Address: "localhost:8080",
 		},
 		menuService:     ms,
+		phoneService:    ps,
 		statusService:   ss,
 		birthdayService: bs,
 	}
@@ -326,8 +340,24 @@ func TestMsgFor(t *testing.T) {
 			"no department",
 		},
 		{
+			strings.Fields("phone nil"),
+			"No result..",
+		},
+		{
+			strings.Fields("phone department1"),
+			"department1",
+		},
+		{
 			strings.Fields("생일"),
 			"no name",
+		},
+		{
+			strings.Fields("생일 ((((nil))))"),
+			"No result..",
+		},
+		{
+			strings.Fields("생일 name1"),
+			"name1",
 		},
 		{
 			strings.Fields("hello"),

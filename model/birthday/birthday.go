@@ -13,6 +13,9 @@ type Birthday struct {
 	DateOfBirth int
 }
 
+// TO BE IMPLEMENTED: DateOfBirth
+// It must be expressed as a six-digit number.
+
 // Repository declares the methods that repository provides.
 type Repository interface {
 	Find(key string) (*Birthday, error)
@@ -31,7 +34,10 @@ func (b Birthday) GetAge() int {
 	}
 
 	year := b.DateOfBirth / 10000
-	return (100 + currentYear - year + 1)
+	if (b.DateOfBirth / 100000) < 1 {
+		currentYear += 100
+	}
+	return (currentYear - year + 1)
 }
 
 // GetBirth returns the birth as form "00월 00일".
