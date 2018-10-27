@@ -207,89 +207,118 @@ var menuURLMap = []string{"https://www.hanyang.ac.kr/web/www/re11",
 	"http://www.hanyang.ac.kr/web/www/re15"}
 
 func (s *Server) msgFor(request []string) string {
-	str := ""
 
 	switch request[0] {
 
 	case "도움말":
-		todayIsBirthdayList := s.birthdayService.CheckBirthday(s.currentTime)
-		for _, tmp := range todayIsBirthdayList {
-			str += "(축하)오늘은 "
-			str += tmp.Name
-			str += "의 생일입니다.(축하)\n"
-		}
-
-		str += "LABchat에 오신걸 환영합니다.\nLABchat은 다음과 같은 기능을 제공합니다.\n - 서버상태 정보(status)\n - 내선번호 검색 기능(phone 사이버피지컬)\n - 교내식당 메뉴 정보 제공(menu)\n - 연구실 내 구성원 생일 정보 제공(birthday 이름)\n"
-		return str
+		return s.help()
 
 	case "시작하기":
-		todayIsBirthdayList := s.birthdayService.CheckBirthday(s.currentTime)
-		for _, tmp := range todayIsBirthdayList {
-			str += "(축하)오늘은 "
-			str += tmp.Name
-			str += "의 생일입니다.(축하)\n"
-		}
-
-		str += "필요한 기능을 사용해보세요."
-		return str
+		return s.start()
 
 	case "status", "Status", "상태", "서버":
-		c := s.statusService.ServerCheck()
-		// str := "TIME : " + c.Time()
-		str += "TEMP : " + c.Temperature.String()
-		str += "\nUPTIME: " + statusModel.FmtDuration(c.Uptime)
-		return str
+		return s.status()
 
 	case "menu", "Menu", "메뉴", "학식":
-		for _, menuURL := range menuURLMap {
-			menu := s.menuService.GetSchool(menuURL)
-			str += string(menu.Restaurant)
-			str += "\n"
-			str += string(menu.TodayMenu)
-			str += "\n\n"
-		}
-		return str
+		return s.menu()
 
 	case "phone", "Phone", "내선", "번호", "내선번호":
-		if len(request) < 2 {
-			return "no department"
-		}
-		department := phoneModel.Department(request[1])
-		p, _ := s.phoneService.GetPhone(department)
-		if p == nil {
-			str += "No result.."
-		} else {
-			for _, val := range p {
-				str += string(val.Department)
-				str += "\t"
-				str += val.Extension
-				str += "\n"
-			}
-		}
-		return str
+		return s.phone(request)
 
 	case "birthday", "Birthday", "생일":
-		if len(request) < 2 {
-			return "no name"
-		}
-		name := request[1]
-		// CHECKPOINT: finding all birthday is necessary?
-		// if name == "모두" || name == "전원" || name == "연구실" {
-		// 	b. _ := s.birthdayService.GetAllBirthday()
-		// }
-		b, _ := s.birthdayService.GetBirthday(name)
-		if b == nil {
-			str += "No result.."
-		} else {
-			str += b.Name
-			str += "\t나이: "
-			str += strconv.Itoa(b.GetAge())
-			str += "\t생일: "
-			str += b.GetBirth()
-		}
-		return str
+		return s.birthday(request)
 	}
 
-	str += strings.Join(request, " ") + "....????"
+	str := strings.Join(request, " ") + "....????"
+	return str
+}
+
+func (s *Server) help() string {
+	str := ""
+	todayIsBirthdayList := s.birthdayService.CheckBirthday(s.currentTime)
+	for _, tmp := range todayIsBirthdayList {
+		str += "(축하)오늘은 "
+		str += tmp.Name
+		str += "의 생일입니다.(축하)\n"
+	}
+
+	str += "LABchat에 오신걸 환영합니다.\nLABchat은 다음과 같은 기능을 제공합니다.\n - 서버상태 정보(status)\n - 내선번호 검색 기능(phone 사이버피지컬)\n - 교내식당 메뉴 정보 제공(menu)\n - 연구실 내 구성원 생일 정보 제공(birthday 이름)\n"
+	return str
+}
+
+func (s *Server) start() string {
+	str := ""
+	todayIsBirthdayList := s.birthdayService.CheckBirthday(s.currentTime)
+	for _, tmp := range todayIsBirthdayList {
+		str += "(축하)오늘은 "
+		str += tmp.Name
+		str += "의 생일입니다.(축하)\n"
+	}
+
+	str += "필요한 기능을 사용해보세요."
+	return str
+}
+
+func (s *Server) status() string {
+	str := ""
+	c := s.statusService.ServerCheck()
+	// str := "TIME : " + c.Time()
+	str += "TEMP : " + c.Temperature.String()
+	str += "\nUPTIME: " + statusModel.FmtDuration(c.Uptime)
+	return str
+}
+
+func (s *Server) menu() string {
+	str := ""
+	for _, menuURL := range menuURLMap {
+		menu := s.menuService.GetSchool(menuURL)
+		str += string(menu.Restaurant)
+		str += "\n"
+		str += string(menu.TodayMenu)
+		str += "\n\n"
+	}
+	return str
+}
+
+func (s *Server) phone(request []string) string {
+	str := ""
+	if len(request) < 2 {
+		return "no department"
+	}
+	department := phoneModel.Department(request[1])
+	p, _ := s.phoneService.GetPhone(department)
+	if p == nil {
+		str += "No result.."
+	} else {
+		for _, val := range p {
+			str += string(val.Department)
+			str += "\t"
+			str += val.Extension
+			str += "\n"
+		}
+	}
+	return str
+}
+
+func (s *Server) birthday(request []string) string {
+	str := ""
+	if len(request) < 2 {
+		return "no name"
+	}
+	name := request[1]
+	// CHECKPOINT: finding all birthday is necessary?
+	// if name == "모두" || name == "전원" || name == "연구실" {
+	// 	b. _ := s.birthdayService.GetAllBirthday()
+	// }
+	b, _ := s.birthdayService.GetBirthday(name)
+	if b == nil {
+		str += "No result.."
+	} else {
+		str += b.Name
+		str += "\t나이: "
+		str += strconv.Itoa(b.GetAge())
+		str += "\t생일: "
+		str += b.GetBirth()
+	}
 	return str
 }
