@@ -1,7 +1,6 @@
 package phone
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -12,7 +11,7 @@ import (
 )
 
 func TestGetPhone(t *testing.T) {
-	tmpFile, err := ioutil.TempFile("", "tmpBirth")
+	tmpFile, err := ioutil.TempFile("", "tmpPhone")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,7 +31,7 @@ func TestGetPhone(t *testing.T) {
 		expected     []*phone.Phone
 	}{
 		{
-			"d",
+			"de",
 			[]*phone.Phone{
 				{Department: "department1", Extension: "0001"},
 				{Department: "department2", Extension: "1010"},
@@ -52,7 +51,6 @@ func TestGetPhone(t *testing.T) {
 			t.Error("GetPhone failed")
 		}
 
-		fmt.Println(c.expected, " ", gotPhoneList, " ")
 		if !reflect.DeepEqual(c.expected, gotPhoneList) {
 			t.Error("NewService error")
 		}
