@@ -285,6 +285,7 @@ func (s *Server) phone(request []string) string {
 	if len(request) < 2 {
 		return "no department"
 	}
+
 	department := phoneModel.Department(request[1])
 	p, _ := s.phoneService.GetPhone(department)
 	if p == nil {

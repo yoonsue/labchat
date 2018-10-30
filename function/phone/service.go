@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -19,8 +20,26 @@ type service struct {
 	phonebook phone.Repository
 }
 
+func (s *service) GetPhone(request string) ([]*phone.Phone, error) {
+	if _, err := strconv.Atoi(request); err == nil {
+		number, _ := strconv.Atoi(request)
+		p, _ := s.getPhoneByNumber(number)
+	} else {
+	}
+}
+
 // GetPhone finds phone number in repository and returns it.
-func (s *service) GetPhone(department phone.Department) ([]*phone.Phone, error) {
+func (s *service) getPhoneByDepartment(department phone.Department) ([]*phone.Phone, error) {
+	resPhone, err := s.phonebook.Find(department)
+	if err != nil {
+		log.Println(errors.Wrap(err, "failed to get phone number"))
+		return nil, err
+	}
+	return resPhone, nil
+}
+
+// GetPhone finds phone number in repository and returns it.
+func (s *service) getPhoneByNumber(department phone.Department) ([]*phone.Phone, error) {
 	resPhone, err := s.phonebook.Find(department)
 	if err != nil {
 		log.Println(errors.Wrap(err, "failed to get phone number"))
