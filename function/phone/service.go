@@ -39,8 +39,8 @@ func (s *service) getPhoneByDepartment(department phone.Department) ([]*phone.Ph
 }
 
 // GetPhone finds phone number in repository and returns it.
-func (s *service) getPhoneByNumber(department phone.Department) ([]*phone.Phone, error) {
-	resPhone, err := s.phonebook.Find(department)
+func (s *service) getPhoneByNumber(number int) ([]*phone.Phone, error) {
+	resPhone, err := s.phonebook.Find(number)
 	if err != nil {
 		log.Println(errors.Wrap(err, "failed to get phone number"))
 		return nil, err

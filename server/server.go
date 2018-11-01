@@ -286,8 +286,8 @@ func (s *Server) phone(request []string) string {
 		return "no department"
 	}
 
-	department := phoneModel.Department(request[1])
-	p, _ := s.phoneService.GetPhone(department)
+	req := phoneModel.Department(request[1])
+	p, _ := s.phoneService.GetPhone(req)
 	if p == nil {
 		str += "No result.."
 	} else {
