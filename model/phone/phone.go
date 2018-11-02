@@ -12,6 +12,7 @@ type Department string
 // Repository declares the methods that repository provides.
 type Repository interface {
 	Find(key Department) ([]*Phone, error)
+	FindByNum(number int) ([]*Phone, error)
 	Store(key *Phone) error
 	Clean() error
 }
