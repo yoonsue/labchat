@@ -18,7 +18,11 @@ func TestGetAge(t *testing.T) {
 	}{
 		{
 			Birthday{Name: "name1", DateOfBirth: 000101},
-			(100 + currentYear + 1),
+			(currentYear + 1),
+		},
+		{
+			Birthday{Name: "name1", DateOfBirth: 990101},
+			(100 + currentYear - 99 + 1),
 		},
 	}
 	for _, c := range testCases {
@@ -34,8 +38,8 @@ func TestGetBirth(t *testing.T) {
 		expected string
 	}{
 		{
-			Birthday{Name: "name1", DateOfBirth: 20000101},
-			"01월 01일",
+			Birthday{Name: "name01", DateOfBirth: 991201},
+			"1999년 12월 01일",
 		},
 	}
 	for _, c := range testCases {

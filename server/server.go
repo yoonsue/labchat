@@ -14,7 +14,6 @@ import (
 	"github.com/yoonsue/labchat/function/menu"
 	"github.com/yoonsue/labchat/function/phone"
 	"github.com/yoonsue/labchat/function/status"
-	phoneModel "github.com/yoonsue/labchat/model/phone"
 	statusModel "github.com/yoonsue/labchat/model/status"
 )
 
@@ -286,8 +285,7 @@ func (s *Server) phone(request []string) string {
 		return "no department"
 	}
 
-	req := phoneModel.Department(request[1])
-	p, _ := s.phoneService.GetPhone(req)
+	p, _ := s.phoneService.GetPhone(request[1])
 	if p == nil {
 		str += "No result.."
 	} else {

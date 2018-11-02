@@ -34,7 +34,7 @@ func (b Birthday) GetAge() int {
 	}
 
 	year := b.DateOfBirth / 10000
-	if (b.DateOfBirth / 100000) < 1 {
+	if (b.DateOfBirth / 100000) > 1 {
 		currentYear += 100
 	}
 	return (currentYear - year + 1)
@@ -42,9 +42,16 @@ func (b Birthday) GetAge() int {
 
 // GetBirth returns the birth as form "00월 00일".
 func (b Birthday) GetBirth() string {
+	year := b.DateOfBirth / 10000
+	if year > 18 {
+		year += 1900
+	} else {
+		year += 2000
+	}
+	strYear := fmt.Sprintf("%04d", year)
 	month := (b.DateOfBirth % 10000) / 100
 	strMonth := fmt.Sprintf("%02d", month)
 	day := b.DateOfBirth % 100
 	strDay := fmt.Sprintf("%02d", day)
-	return strMonth + "월 " + strDay + "일"
+	return strYear + "년 " + strMonth + "월 " + strDay + "일"
 }

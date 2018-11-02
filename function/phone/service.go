@@ -13,7 +13,7 @@ import (
 
 // Service declares the methods that phone service provides.
 type Service interface {
-	GetPhone(department phone.Department) ([]*phone.Phone, error)
+	GetPhone(string) ([]*phone.Phone, error)
 }
 
 type service struct {
@@ -23,8 +23,11 @@ type service struct {
 func (s *service) GetPhone(request string) ([]*phone.Phone, error) {
 	if _, err := strconv.Atoi(request); err == nil {
 		number, _ := strconv.Atoi(request)
-		p, _ := s.getPhoneByNumber(number)
+		p, err := s.getPhoneByNumber(number)
+		return p, err
 	} else {
+		p, err := s.getPhoneByDepartment(phone.Department(request))
+		return p, err
 	}
 }
 
@@ -40,7 +43,7 @@ func (s *service) getPhoneByDepartment(department phone.Department) ([]*phone.Ph
 
 // GetPhone finds phone number in repository and returns it.
 func (s *service) getPhoneByNumber(number int) ([]*phone.Phone, error) {
-	resPhone, err := s.phonebook.Find(number)
+	resPhone, err := s.phonebook.FindByNum(number)
 	if err != nil {
 		log.Println(errors.Wrap(err, "failed to get phone number"))
 		return nil, err

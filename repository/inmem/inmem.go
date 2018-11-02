@@ -1,6 +1,7 @@
 package inmem
 
 import (
+	"strconv"
 	"strings"
 	"sync"
 
@@ -88,6 +89,19 @@ func (r *PhoneRepository) Find(d phone.Department) ([]*phone.Phone, error) {
 	var phoneList []*phone.Phone
 	for key, phone := range r.phoneMap {
 		if strings.Contains(key.ToString(), d.ToString()) {
+			phoneList = append(phoneList, phone)
+		}
+	}
+	return phoneList, nil
+}
+
+// FindByNum returns phone that match with the given phonbe number.
+func (r *PhoneRepository) FindByNum(phoneNum int) ([]*phone.Phone, error) {
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
+	var phoneList []*phone.Phone
+	for _, phone := range r.phoneMap {
+		if phone.Extension == strconv.Itoa(phoneNum) {
 			phoneList = append(phoneList, phone)
 		}
 	}

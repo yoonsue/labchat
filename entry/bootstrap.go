@@ -123,5 +123,4 @@ func Bootstrap() {
 func (r *Resource) cleanup() {
 	// TODO: implementation.
 	r.cleanLog()
-
 }

@@ -1,6 +1,8 @@
 package mongo
 
 import (
+	"strconv"
+
 	"github.com/yoonsue/labchat/model/birthday"
 	"github.com/yoonsue/labchat/model/menu"
 	"github.com/yoonsue/labchat/model/phone"
@@ -142,6 +144,31 @@ func (r *PhoneRepository) Find(dept phone.Department) ([]*phone.Phone, error) {
 	// 	resultPhoneList = append(resultPhoneList, phone)
 	// }
 	return mongoPhoneList, nil
+}
+
+// FindByNum returns phone model that match with the given deparment.
+func (r *PhoneRepository) FindByNum(phoneNum int) ([]*phone.Phone, error) {
+	sess := r.session.Copy()
+	defer sess.Close()
+
+	c := sess.DB(r.db).C(r.collection)
+	var mongoPhoneList []*phone.Phone
+	// var resultPhoneList []*phone.Phone
+
+	if err := c.Find(bson.M{}).All(&mongoPhoneList); err != nil {
+		if err == mgo.ErrNotFound {
+			return nil, err
+		}
+		return nil, err
+	}
+
+	var phoneList []*phone.Phone
+	for _, phone := range mongoPhoneList {
+		if phone.Extension == strconv.Itoa(phoneNum) {
+			phoneList = append(phoneList, phone)
+		}
+	}
+	return phoneList, nil
 }
 
 // Clean the phone repository.
