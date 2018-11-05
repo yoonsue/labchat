@@ -21,14 +21,14 @@ type service struct {
 }
 
 func (s *service) GetPhone(request string) ([]*phone.Phone, error) {
+	var p []*phone.Phone
 	if _, err := strconv.Atoi(request); err == nil {
 		number, _ := strconv.Atoi(request)
-		p, err := s.getPhoneByNumber(number)
-		return p, err
+		p, _ = s.getPhoneByNumber(number)
 	} else {
-		p, err := s.getPhoneByDepartment(phone.Department(request))
-		return p, err
+		p, _ = s.getPhoneByDepartment(phone.Department(request))
 	}
+	return p, nil
 }
 
 // GetPhone finds phone number in repository and returns it.

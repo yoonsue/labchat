@@ -46,7 +46,7 @@ func TestGetPhone(t *testing.T) {
 		},
 	}
 	for _, c := range testCases {
-		gotPhoneList, err := s.GetPhone(c.depSubString)
+		gotPhoneList, err := s.GetPhone(string(c.depSubString))
 		if err != nil {
 			t.Error("GetPhone failed")
 		}
