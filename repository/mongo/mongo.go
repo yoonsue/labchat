@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/yoonsue/labchat/model/birthday"
+	"github.com/yoonsue/labchat/model/location"
 	"github.com/yoonsue/labchat/model/menu"
 	"github.com/yoonsue/labchat/model/phone"
 	"gopkg.in/mgo.v2"
@@ -260,6 +261,74 @@ func (r *BirthdayRepository) FindAll() ([]*birthday.Birthday, error) {
 // Clean the birthday repository.
 func (r *BirthdayRepository) Clean() error {
 	/////////////// HOW CAN I CHECK COLLECTION REMOVED???
+	r.session.DB(r.db).C(r.collection).RemoveAll(nil)
+	return nil
+}
+
+// LocationRepository struct definition.
+type LocationRepository struct {
+	db         string
+	session    *mgo.Session
+	collection string
+}
+
+// NewLocationRepository return a new instance of in-memory location repository.
+func NewLocationRepository(session *mgo.Session, collection string) (location.Repository, error) {
+	r := &LocationRepository{
+		db:         "mongo",
+		session:    session,
+		collection: collection,
+	}
+
+	index := mgo.Index{
+		Key:        []string{"Name"},
+		Unique:     true,
+		DropDups:   true,
+		Background: true,
+		Sparse:     true,
+	}
+
+	sess := r.session.Copy()
+	defer sess.Close()
+
+	c := sess.DB(r.db).C(r.collection)
+
+	if err := c.EnsureIndex(index); err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+// Store saves location model in memory.
+func (r *LocationRepository) Store(target *location.Location) error {
+	sess := r.session.Copy()
+	defer sess.Close()
+
+	c := sess.DB(r.db).C(r.collection)
+
+	_, err := c.Upsert(bson.M{"Name": target.Name}, bson.M{"$set": target})
+
+	return err
+}
+
+// Find returns location that match with the given name.
+func (r *LocationRepository) Find(name string) ([]*location.Location, error) {
+	sess := r.session.Copy()
+	defer sess.Close()
+
+	c := sess.DB(r.db).C(r.collection)
+	var mongoLocationList []*location.Location
+	if err := c.Find(bson.M{"Name": bson.RegEx{".*" + name + ".*", ""}}).All(&mongoLocationList); err != nil {
+		if err == mgo.ErrNotFound {
+			return nil, err
+		}
+		return nil, err
+	}
+	return mongoLocationList, nil
+}
+
+// Clean the location repository.
+func (r *LocationRepository) Clean() error {
 	r.session.DB(r.db).C(r.collection).RemoveAll(nil)
 	return nil
 }

@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/yoonsue/labchat/model/birthday"
+	"github.com/yoonsue/labchat/model/location"
 	"github.com/yoonsue/labchat/model/menu"
 	"github.com/yoonsue/labchat/model/phone"
 )
@@ -163,6 +164,49 @@ func (r *BirthdayRepository) FindAll() ([]*birthday.Birthday, error) {
 // Clean the birthday repository.
 func (r *BirthdayRepository) Clean() error {
 	m := r.birthdayMap
+	for k := range m {
+		delete(m, k)
+	}
+	return nil
+}
+
+// LocationRepository struct definition.
+type LocationRepository struct {
+	mtx          sync.RWMutex
+	locationList map[string]*location.Location
+}
+
+// NewLocationRepository return a new instance of in-memory location repository.
+func NewLocationRepository() location.Repository {
+	return &LocationRepository{
+		locationList: make(map[string]*location.Location),
+	}
+}
+
+// Store saves location model in memory.
+func (r *LocationRepository) Store(target *location.Location) error {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+	r.locationList[target.Name] = target
+	return nil
+}
+
+// Find returns location that match with the given name.
+func (r *LocationRepository) Find(name string) ([]*location.Location, error) {
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
+	var locationList []*location.Location
+	for key, loc := range r.locationList {
+		if strings.Contains(key, name) {
+			locationList = append(locationList, loc)
+		}
+	}
+	return locationList, nil
+}
+
+// Clean the location repository.
+func (r *LocationRepository) Clean() error {
+	m := r.locationList
 	for k := range m {
 		delete(m, k)
 	}

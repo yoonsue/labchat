@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/yoonsue/labchat/function/birthday"
+	"github.com/yoonsue/labchat/function/location"
 	"github.com/yoonsue/labchat/function/menu"
 	"github.com/yoonsue/labchat/function/phone"
 	"github.com/yoonsue/labchat/function/status"
@@ -21,6 +22,7 @@ func TestNewServer(t *testing.T) {
 	var ps phone.Service
 	var ss status.Service
 	var bs birthday.Service
+	var ls location.Service
 	s := Server{
 		cfg: &Config{
 			Address: "localhost:8080",
@@ -29,8 +31,9 @@ func TestNewServer(t *testing.T) {
 		phoneService:    ps,
 		statusService:   ss,
 		birthdayService: bs,
+		locationService: ls,
 	}
-	gotServer, _ := NewServer(s.currentTime, s.cfg, ms, ps, ss, bs)
+	gotServer, _ := NewServer(s.currentTime, s.cfg, ms, ps, ss, bs, ls)
 	if s.cfg != gotServer.cfg {
 		t.Errorf("expected %s, got %s", s.cfg, gotServer.cfg)
 	}
@@ -44,6 +47,7 @@ func TestStart(t *testing.T) {
 	var ps phone.Service
 	var ss status.Service
 	var bs birthday.Service
+	var ls location.Service
 
 	s := Server{
 		cfg: &Config{
@@ -53,6 +57,7 @@ func TestStart(t *testing.T) {
 		phoneService:    ps,
 		statusService:   ss,
 		birthdayService: bs,
+		locationService: ls,
 	}
 	gotMux := s.Start()
 
@@ -341,7 +346,7 @@ func TestMsgFor(t *testing.T) {
 		},
 		{
 			strings.Fields("phone nil"),
-			"No result..",
+			"No result from the given department",
 		},
 		{
 			strings.Fields("phone department1"),
@@ -353,7 +358,7 @@ func TestMsgFor(t *testing.T) {
 		},
 		{
 			strings.Fields("생일 ((((nil))))"),
-			"No result..",
+			"No result from the given name",
 		},
 		{
 			strings.Fields("생일 name1"),

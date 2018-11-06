@@ -9,10 +9,12 @@ import (
 
 	"github.com/pkg/errors"
 	birthdayFunction "github.com/yoonsue/labchat/function/birthday"
+	locationFunction "github.com/yoonsue/labchat/function/location"
 	menuFunction "github.com/yoonsue/labchat/function/menu"
 	phoneFunction "github.com/yoonsue/labchat/function/phone"
 	statusFunction "github.com/yoonsue/labchat/function/status"
 	birthdayModel "github.com/yoonsue/labchat/model/birthday"
+	locationModel "github.com/yoonsue/labchat/model/location"
 	menuModel "github.com/yoonsue/labchat/model/menu"
 	phoneModel "github.com/yoonsue/labchat/model/phone"
 	statusModel "github.com/yoonsue/labchat/model/status"
@@ -29,6 +31,7 @@ const defaultConfigPath = "./labchat.conf.yaml"
 const defaultLogPath = "./labchat.log"
 const defaultPhonePath = "./phone.txt"
 const defaultBirthdayPath = "./birthday.txt"
+const defaultLocationPath = "./location.txt"
 
 // Bootstrap is the entry point for running the labchat server.
 // It generates the necessary configuration files and creates the components
@@ -53,6 +56,7 @@ func Bootstrap() {
 		menus        menuModel.Repository
 		phonebook    phoneModel.Repository
 		birthdayList birthdayModel.Repository
+		locationList locationModel.Repository
 	)
 
 	if yamlConfig.Database == "inmem" {
@@ -60,6 +64,7 @@ func Bootstrap() {
 		menus = inmem.NewMenuRepository()
 		phonebook = inmem.NewPhoneRepository()
 		birthdayList = inmem.NewBirthdayRepository()
+		locationList = inmem.NewLocationRepository()
 	} else if yamlConfig.Database == "mongo" {
 		log.Println("DB: MongoDB")
 		session, err := mgo.Dial(yamlConfig.DBURL)
@@ -71,6 +76,7 @@ func Bootstrap() {
 		menus, _ = mongo.NewMenuRepository(session, "menu")
 		phonebook, _ = mongo.NewPhoneRepository(session, "phone")
 		birthdayList, _ = mongo.NewBirthdayRepository(session, "birthday")
+		locationList, _ = mongo.NewLocationRepository(session, "location")
 		log.Println("create the mongoDB session")
 	} else {
 		log.Fatalf("unsupported database type: %s", yamlConfig.Database)
@@ -85,12 +91,14 @@ func Bootstrap() {
 	ss = statusFunction.NewService(statusServer)
 	var bs birthdayFunction.Service
 	bs = birthdayFunction.NewService(birthdayList, defaultBirthdayPath)
+	var ls locationFunction.Service
+	ls = locationFunction.NewService(locationList, defaultLocationPath)
 
 	serverConfig := server.DefaultConfig()
 	serverConfig.Address = yamlConfig.Address
 	log.Println("make server configuration")
 
-	labchat, err := server.NewServer(currentString, serverConfig, ms, ps, ss, bs)
+	labchat, err := server.NewServer(currentString, serverConfig, ms, ps, ss, bs, ls)
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "failed to create labchat server"))
 	}

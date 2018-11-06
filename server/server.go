@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/yoonsue/labchat/function/birthday"
+	"github.com/yoonsue/labchat/function/location"
 	"github.com/yoonsue/labchat/function/menu"
 	"github.com/yoonsue/labchat/function/phone"
 	"github.com/yoonsue/labchat/function/status"
@@ -29,10 +30,11 @@ type Server struct {
 	phoneService    phone.Service
 	statusService   status.Service
 	birthdayService birthday.Service
+	locationService location.Service
 }
 
 // NewServer creates a new labchat server with the given configuration.
-func NewServer(curTime string, cfg *Config, ms menu.Service, ps phone.Service, ss status.Service, bs birthday.Service) (srv *Server, err error) {
+func NewServer(curTime string, cfg *Config, ms menu.Service, ps phone.Service, ss status.Service, bs birthday.Service, ls location.Service) (srv *Server, err error) {
 	return &Server{
 		currentTime:     curTime,
 		cfg:             cfg,
@@ -40,6 +42,7 @@ func NewServer(curTime string, cfg *Config, ms menu.Service, ps phone.Service, s
 		phoneService:    ps,
 		statusService:   ss,
 		birthdayService: bs,
+		locationService: ls,
 	}, nil
 }
 
@@ -226,6 +229,9 @@ func (s *Server) msgFor(request []string) string {
 
 	case "birthday", "Birthday", "생일":
 		return s.birthday(request)
+
+	case "location", "위치", "주소":
+		return s.location(request)
 	}
 
 	str := strings.Join(request, " ") + "....????"
@@ -241,7 +247,7 @@ func (s *Server) help() string {
 		str += "의 생일입니다.(축하)\n"
 	}
 
-	str += "LABchat에 오신걸 환영합니다.\nLABchat은 다음과 같은 기능을 제공합니다.\n - 서버상태 정보(status)\n - 내선번호 검색 기능(phone 사이버피지컬)\n - 교내식당 메뉴 정보 제공(menu)\n - 연구실 내 구성원 생일 정보 제공(birthday 이름)\n"
+	str += "LABchat에 오신걸 환영합니다.\nLABchat은 다음과 같은 기능을 제공합니다.\n - 서버상태 정보(status)\n - 내선번호 검색 기능(phone 사이버피지컬)\n - 컴퓨터공학과 교수진 및 연구실 주소 검색 기능(location 사이버피지컬)\n - 교내식당 메뉴 정보 제공(menu)\n - 연구실 내 구성원 생일 정보 제공(birthday 이름)\n"
 	return str
 }
 
@@ -287,7 +293,7 @@ func (s *Server) phone(request []string) string {
 
 	p, _ := s.phoneService.GetPhone(request[1])
 	if p == nil {
-		str += "No result.."
+		str += "No result from the given department"
 	} else {
 		for _, val := range p {
 			str += string(val.Department)
@@ -311,13 +317,33 @@ func (s *Server) birthday(request []string) string {
 	// }
 	b, _ := s.birthdayService.GetBirthday(name)
 	if b == nil {
-		str += "No result.."
+		str += "No result from the given name"
 	} else {
 		str += b.Name
 		str += "\t나이: "
 		str += strconv.Itoa(b.GetAge())
 		str += "\t생일: "
 		str += b.GetBirth()
+	}
+	return str
+}
+
+func (s *Server) location(request []string) string {
+	str := ""
+	if len(request) < 2 {
+		return "no name"
+	}
+	name := request[1]
+	l, _ := s.locationService.GetLocation(name)
+	if l == nil {
+		str += "No result from the given location"
+	} else {
+		for _, val := range l {
+			str += val.Name
+			str += " 위치: "
+			str += val.Location
+			str += "\n"
+		}
 	}
 	return str
 }
