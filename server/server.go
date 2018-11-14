@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/yoonsue/labchat/function/birthday"
+	"github.com/yoonsue/labchat/function/library"
 	"github.com/yoonsue/labchat/function/location"
 	"github.com/yoonsue/labchat/function/menu"
 	"github.com/yoonsue/labchat/function/phone"
@@ -31,6 +32,7 @@ type Server struct {
 	statusService   status.Service
 	birthdayService birthday.Service
 	locationService location.Service
+	libraryService  library.Service
 }
 
 // NewServer creates a new labchat server with the given configuration.
@@ -43,6 +45,7 @@ func NewServer(curTime string, cfg *Config, ms menu.Service, ps phone.Service, s
 		statusService:   ss,
 		birthdayService: bs,
 		locationService: ls,
+		libraryService:  libs,
 	}, nil
 }
 
@@ -232,6 +235,9 @@ func (s *Server) msgFor(request []string) string {
 
 	case "location", "위치", "주소":
 		return s.location(request)
+
+	case "library", "도서관", "도서", "연장":
+		return s.library(request)
 	}
 
 	str := strings.Join(request, " ") + "....????"
@@ -335,6 +341,27 @@ func (s *Server) location(request []string) string {
 	}
 	name := request[1]
 	l, _ := s.locationService.GetLocation(name)
+	if l == nil {
+		str += "No result from the given location"
+	} else {
+		for _, val := range l {
+			str += val.Name
+			str += " 위치: "
+			str += val.Location
+			str += "\n"
+		}
+	}
+	return str
+}
+
+func (s *Server) library(request []string) string {
+	str := ""
+	if len(request) < 3 {
+		return "no name"
+	}
+	id := request[1]
+	pw := request[2]
+	l, _ := s.libraryService.LoginLibrary(id, pw)
 	if l == nil {
 		str += "No result from the given location"
 	} else {

@@ -1,12 +1,15 @@
 package library
 
 type LoginInfo struct {
-	LoginId  string
-	Password string
+	UserKey    string // Kakao Userkey
+	LoginId    string // Library login ID
+	Password   string // Library login PW
+	LoginToken string // Library login token
 }
 
 type Repository interface {
-	Find(id string, pw string) (*LoginInfo, error)
+	Find(userkey string) (*LoginInfo, error)
 	Store(key *LoginInfo) error
+	StoreToken(id string, token string) error
 	Clean() error
 }

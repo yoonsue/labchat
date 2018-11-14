@@ -31,9 +31,6 @@ func (s *service) GetLocation(request string) ([]*locationModel.Location, error)
 
 // IntialStore stores all location at repository.
 func (s *service) intialStore(fpath string) error {
-	// TO BE IMPLEMENTED:
-	// 1. store at the repository
-	// 2. where to put this fuction(maybe NewService)
 	lines, err := readLines(fpath)
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "failed to read lines from phone path"))
