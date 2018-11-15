@@ -19,7 +19,8 @@ const defaultLibraryAddress = "https://lib.hanyang.ac.kr/pyxis-api"
 
 type Service interface {
 	// TO BE IMPLEMENTED: it would be a kakaotalk api userkey
-	Login(string) (string, error)
+
+	Login(id string, pw string) (*library.LoginInfo, error)
 	// GetLoginInfo(string, string) (*library.LoginInfo, error)
 	// Login(string) error
 }
@@ -36,18 +37,22 @@ type service struct {
 	libraryLoginList library.Repository
 }
 
-func (s *service) Login(userkey string) (string, error) { //return accessToken
-	userLoginInfo, err := s.libraryLoginList.Find(userkey)
-	if err != nil {
-		log.Println(errors.Wrap(err, "failed to get login information"))
-		return "", err
-	}
+func (s *service) Login(id string, pw string) (*library.LoginInfo, error) { //return accessToken
+
 	ls := NewService(s.libraryLoginList, "./libLoginInfo.txt")
 	p, err := NewProxy(time.Now().Local().Format("2006-01-02"), Address(defaultLibraryAddress), ls)
 	if err != nil {
 		log.Println(errors.Wrap(err, "failed to start new proxy"))
 	}
 	p.Start()
+}
+
+func (s *service) GetDueDate(userkey string) (string, error) {
+	userLoginInfo, err := s.libraryLoginList.Find(userkey)
+	if err != nil {
+		log.Println(errors.Wrap(err, "failed to get login information"))
+		return "", err
+	}
 	return userLoginInfo.LoginToken, nil
 }
 
@@ -186,7 +191,12 @@ type patronType struct {
 func (p *Proxy) loginHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 
-	var response response
+	data := loginRequest{
+		// TO BE IMPLEMENTED: get info from server.go
+		loginId:  "",
+		password: "",
+	}
+	loginInfo, err := p.libraryService.Login(data.loginId, data.password)
 
 	body, err := ioutil.ReadAll(r.Body)
 	r.Body.Close()
@@ -195,17 +205,11 @@ func (p *Proxy) loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("body: %s\n", string(body))
 
+	var response response
 	if err := json.Unmarshal(body, &response); err != nil {
 		log.Println(errors.Wrap(err, "failed to unmarshal /pyxis-api/api/login"))
 	}
-
-	loginData := response.data
-	loginToken := loginData.accessToken
-
-	if loginToken, err := p.libraryService.Login(loginToken); err != nil {
-		log.Println(errors.Wrap(err, "failed to store token for id"))
-	}
-
+	// response.data.accessToken
 	responseJson, _ := json.Marshal(response)
 	w.Write(responseJson)
 	return

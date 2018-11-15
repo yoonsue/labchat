@@ -165,7 +165,7 @@ func (s *Server) friendHandler(w http.ResponseWriter, r *http.Request) {
 	if err := json.Unmarshal(body, &usr); err != nil {
 		log.Println(errors.Wrap(err, "failed to unmarshal body of /friend"))
 	}
-	w.Write([]byte(string("Hello, my friend")))
+	w.Write([]byte("Hello, my friend"))
 	log.Printf("Friend %s joined\n", usr.UserKey)
 	return
 }
