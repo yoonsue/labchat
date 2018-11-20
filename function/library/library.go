@@ -45,6 +45,7 @@ func (s *service) Login(id string, pw string) (*library.LoginInfo, error) { //re
 		log.Println(errors.Wrap(err, "failed to start new proxy"))
 	}
 	p.Start()
+	return nil, err
 }
 
 func (s *service) GetDueDate(userkey string) (string, error) {
@@ -78,6 +79,8 @@ func (p *Proxy) Start() *mux.Router {
 	rou := mux.NewRouter()
 
 	rou.HandleFunc("/api/login", p.loginHandler).Methods("POST")
+	rou.HandleFunc("/1/api/charges?max=1000", p.libHandler).Methods("GET")
+
 	return rou
 }
 
@@ -209,9 +212,20 @@ func (p *Proxy) loginHandler(w http.ResponseWriter, r *http.Request) {
 	if err := json.Unmarshal(body, &response); err != nil {
 		log.Println(errors.Wrap(err, "failed to unmarshal /pyxis-api/api/login"))
 	}
-	// response.data.accessToken
+
+	loginInfo.LoginToken = response.data.accessToken
+
+	// TESTING
 	responseJson, _ := json.Marshal(response)
 	w.Write(responseJson)
+	return
+}
+
+// Request
+// curl -H 'Content-Type: application/json;charset=UTF-8'
+// 	-XGET 'http://lib.hanyang.ac.kr/pyxis-api//1/api/charges?max=1000'
+// 	-c 'JESSIONID='
+func (p *Proxy) libHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
