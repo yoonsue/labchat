@@ -39,21 +39,13 @@ func (s *service) intialStore(fpath string) error {
 	for _, line := range lines {
 		name := ""
 		location := ""
-		if strings.HasPrefix(line, "=") {
-			name += line
-		} else {
-			splitLine := strings.Split(line, "\t")
-			name, location = splitLine[0], splitLine[1]
-			// extenInt, err := strconv.Atoi(exten)
-			if err != nil {
-				log.Println("exten is not int type")
-			}
-			newLocation := &locationModel.Location{
-				Name:     name,
-				Location: location,
-			}
-			s.locationList.Store(newLocation)
+		splitLine := strings.Split(line, "\t")
+		name, location = splitLine[0], splitLine[1]
+		newLocation := &locationModel.Location{
+			Name:     name,
+			Location: location,
 		}
+		s.locationList.Store(newLocation)
 	}
 	return nil
 }

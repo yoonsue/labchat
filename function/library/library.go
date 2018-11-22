@@ -3,6 +3,7 @@ package library
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -237,24 +238,17 @@ func (s *service) intialStore(fpath string) error {
 	}
 	log.Println("initial location store started")
 	for _, line := range lines {
-		id := ""
-		pw := ""
-		if strings.HasPrefix(line, "=") {
-			id += line
-		} else {
-			splitLine := strings.Split(line, "\t")
-			id, pw = splitLine[0], splitLine[1]
-			// extenInt, err := strconv.Atoi(exten)
-			if err != nil {
-				log.Println("exten is not int type")
-			}
-			newLoginInfo := &library.LoginInfo{
-				// TO BE IMPLEMENTED: kakao userkey
-				LoginId:  id,
-				Password: pw,
-			}
-			s.libraryLoginList.Store(newLoginInfo)
+		splitLine := strings.Split(line, "\t")
+		id, pw := splitLine[0], splitLine[1]
+
+		newLoginInfo := &library.LoginInfo{
+			// TO BE IMPLEMENTED: kakao userkey
+			UserKey:  "sample",
+			LoginId:  id,
+			Password: pw,
 		}
+		fmt.Printf("%s", newLoginInfo)
+		s.libraryLoginList.Store(newLoginInfo)
 	}
 	return nil
 }

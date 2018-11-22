@@ -9,11 +9,13 @@ import (
 
 	"github.com/pkg/errors"
 	birthdayFunction "github.com/yoonsue/labchat/function/birthday"
+	libraryFunction "github.com/yoonsue/labchat/function/library"
 	locationFunction "github.com/yoonsue/labchat/function/location"
 	menuFunction "github.com/yoonsue/labchat/function/menu"
 	phoneFunction "github.com/yoonsue/labchat/function/phone"
 	statusFunction "github.com/yoonsue/labchat/function/status"
 	birthdayModel "github.com/yoonsue/labchat/model/birthday"
+	libraryModel "github.com/yoonsue/labchat/model/library"
 	locationModel "github.com/yoonsue/labchat/model/location"
 	menuModel "github.com/yoonsue/labchat/model/menu"
 	phoneModel "github.com/yoonsue/labchat/model/phone"
@@ -32,6 +34,7 @@ const defaultLogPath = "./labchat.log"
 const defaultPhonePath = "./phone.txt"
 const defaultBirthdayPath = "./birthday.txt"
 const defaultLocationPath = "./location.txt"
+const defaultLibaryLoginPath = "./library.txt"
 
 // Bootstrap is the entry point for running the labchat server.
 // It generates the necessary configuration files and creates the components
@@ -53,10 +56,11 @@ func Bootstrap() {
 	log.Println("read configuration file")
 
 	var (
-		menus        menuModel.Repository
-		phonebook    phoneModel.Repository
-		birthdayList birthdayModel.Repository
-		locationList locationModel.Repository
+		menus            menuModel.Repository
+		phonebook        phoneModel.Repository
+		birthdayList     birthdayModel.Repository
+		locationList     locationModel.Repository
+		libraryLoginList libraryModel.Repository
 	)
 
 	if yamlConfig.Database == "inmem" {
@@ -93,12 +97,14 @@ func Bootstrap() {
 	bs = birthdayFunction.NewService(birthdayList, defaultBirthdayPath)
 	var ls locationFunction.Service
 	ls = locationFunction.NewService(locationList, defaultLocationPath)
+	var libs libraryFunction.Service
+	libs = libraryFunction.NewService(libraryLoginList, defaultLibaryLoginPath)
 
 	serverConfig := server.DefaultConfig()
 	serverConfig.Address = yamlConfig.Address
 	log.Println("make server configuration")
 
-	labchat, err := server.NewServer(currentString, serverConfig, ms, ps, ss, bs, ls)
+	labchat, err := server.NewServer(currentString, serverConfig, ms, ps, ss, bs, ls, libs)
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "failed to create labchat server"))
 	}

@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/yoonsue/labchat/model/birthday"
+	"github.com/yoonsue/labchat/model/library"
 	"github.com/yoonsue/labchat/model/location"
 	"github.com/yoonsue/labchat/model/menu"
 	"github.com/yoonsue/labchat/model/phone"
@@ -207,6 +208,57 @@ func (r *LocationRepository) Find(name string) ([]*location.Location, error) {
 // Clean the location repository.
 func (r *LocationRepository) Clean() error {
 	m := r.locationList
+	for k := range m {
+		delete(m, k)
+	}
+	return nil
+}
+
+// LibraryRepository struct definition.
+type LibraryRepository struct {
+	mtx              sync.RWMutex
+	libraryLoginList map[string]*library.LoginInfo
+}
+
+// NewLibraryRepository return a new instance of in-memory location repository.
+func NewLibraryRepository() library.Repository {
+	return &LibraryRepository{
+		libraryLoginList: make(map[string]*library.LoginInfo),
+	}
+}
+
+// Find returns location that match with the given name.
+func (r *LibraryRepository) Find(userkey string) (*library.LoginInfo, error) {
+	r.mtx.RLock()
+	defer r.mtx.RUnlock()
+	var libraryLoginInfo *library.LoginInfo
+	for key, loginInfo := range r.libraryLoginList {
+		if key == userkey {
+			libraryLoginInfo = loginInfo
+		}
+	}
+	return libraryLoginInfo, nil
+}
+
+// Store saves location model in memory.
+func (r *LibraryRepository) Store(target *library.LoginInfo) error {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+	r.libraryLoginList[target.UserKey] = target
+	return nil
+}
+
+// Store saves location model in memory.
+func (r *LibraryRepository) StoreToken(target *library.LoginInfo, token string) error {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+	target.LoginToken = token
+	return nil
+}
+
+// Clean the location repository.
+func (r *LibraryRepository) Clean() error {
+	m := r.libraryLoginList
 	for k := range m {
 		delete(m, k)
 	}

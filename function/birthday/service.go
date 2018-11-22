@@ -2,6 +2,7 @@ package birthday
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -48,7 +49,8 @@ func (s *service) CheckBirthday(time string) []*birthday.Birthday {
 	mapBirthday, _ := s.getAllBirthday()
 	for _, tmp := range mapBirthday {
 		tmpBirth := tmp.GetBirth()
-		if (tmpBirth[:2] == time[5:7]) && (tmpBirth[6:8] == time[8:10]) {
+		fmt.Printf("%s, %s", tmpBirth[7:9], tmpBirth[12:14])
+		if (tmpBirth[7:9] == time[5:7]) && (tmpBirth[12:14] == time[8:10]) {
 			todayIsBirthList = append(todayIsBirthList, tmp)
 		}
 	}

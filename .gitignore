@@ -16,5 +16,6 @@ labchat.conf.yaml
 phone.txt
 birthday.txt
 location.txt
+library.txt
 msg.json
 .vscode/

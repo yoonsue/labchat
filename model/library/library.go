@@ -10,6 +10,6 @@ type LoginInfo struct {
 type Repository interface {
 	Find(userkey string) (*LoginInfo, error)
 	Store(key *LoginInfo) error
-	StoreToken(id string, token string) error
+	StoreToken(loginInfo *LoginInfo, token string) error
 	Clean() error
 }

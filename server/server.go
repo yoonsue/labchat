@@ -36,7 +36,7 @@ type Server struct {
 }
 
 // NewServer creates a new labchat server with the given configuration.
-func NewServer(curTime string, cfg *Config, ms menu.Service, ps phone.Service, ss status.Service, bs birthday.Service, ls location.Service) (srv *Server, err error) {
+func NewServer(curTime string, cfg *Config, ms menu.Service, ps phone.Service, ss status.Service, bs birthday.Service, ls location.Service, libs library.Service) (srv *Server, err error) {
 	return &Server{
 		currentTime:     curTime,
 		cfg:             cfg,
@@ -361,16 +361,15 @@ func (s *Server) library(request []string) string {
 	}
 	id := request[1]
 	pw := request[2]
-	l, _ := s.libraryService.LoginLibrary(id, pw)
+	l, _ := s.libraryService.Login(id, pw)
 	if l == nil {
 		str += "No result from the given location"
 	} else {
-		for _, val := range l {
-			str += val.Name
-			str += " 위치: "
-			str += val.Location
-			str += "\n"
-		}
+		str += "도서 "
+		str += "3" /////////
+		str += " 권("
+		str += "도서명1, 도서명2, 도서명3" /////////
+		str += "을 자동연장하였습니다."
 	}
 	return str
 }
