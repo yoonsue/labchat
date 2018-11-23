@@ -3,7 +3,6 @@ package library
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -39,9 +38,7 @@ type service struct {
 }
 
 func (s *service) Login(id string, pw string) (*library.LoginInfo, error) { //return accessToken
-
-	ls := NewService(s.libraryLoginList, "./libLoginInfo.txt")
-	p, err := NewProxy(time.Now().Local().Format("2006-01-02"), Address(defaultLibraryAddress), ls)
+	p, err := NewProxy(time.Now().Local().Format("2006-01-02"), Address(defaultLibraryAddress), s)
 	if err != nil {
 		log.Println(errors.Wrap(err, "failed to start new proxy"))
 	}
@@ -236,7 +233,7 @@ func (s *service) intialStore(fpath string) error {
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "failed to read lines from loginInfo path"))
 	}
-	log.Println("initial location store started")
+	log.Println("initial loginInfo store started")
 	for _, line := range lines {
 		splitLine := strings.Split(line, "\t")
 		id, pw := splitLine[0], splitLine[1]
@@ -247,7 +244,6 @@ func (s *service) intialStore(fpath string) error {
 			LoginId:  id,
 			Password: pw,
 		}
-		fmt.Printf("%s", newLoginInfo)
 		s.libraryLoginList.Store(newLoginInfo)
 	}
 	return nil

@@ -69,6 +69,7 @@ func Bootstrap() {
 		phonebook = inmem.NewPhoneRepository()
 		birthdayList = inmem.NewBirthdayRepository()
 		locationList = inmem.NewLocationRepository()
+		libraryLoginList = inmem.NewLibraryRepository()
 	} else if yamlConfig.Database == "mongo" {
 		log.Println("DB: MongoDB")
 		session, err := mgo.Dial(yamlConfig.DBURL)

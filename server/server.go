@@ -363,7 +363,7 @@ func (s *Server) library(request []string) string {
 	pw := request[2]
 	l, _ := s.libraryService.Login(id, pw)
 	if l == nil {
-		str += "No result from the given location"
+		str += "No result from the given id and pw"
 	} else {
 		str += "도서 "
 		str += "3" /////////
