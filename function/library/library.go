@@ -2,6 +2,7 @@ package library
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -76,8 +77,7 @@ func NewProxy(curTime string, cfg Address, ls Service) (p *Proxy, err error) {
 func (p *Proxy) Start() *mux.Router {
 	rou := mux.NewRouter()
 
-	rou.HandleFunc("/api/login", p.loginHandler).Methods("POST")
-	rou.HandleFunc("/1/api/charges?max=1000", p.libHandler).Methods("GET")
+	// rou.HandleFunc("/api/login", p.loginHandler).Methods("POST")
 
 	return rou
 }
@@ -91,6 +91,9 @@ type message struct {
 type loginRequest struct {
 	loginId  string `json:"loginId"`
 	password string `json:"password"`
+
+	/// TO BE COMFIRMED
+	loginToken string `json:"loginToken"`
 }
 
 // response contains Message for respText
@@ -189,41 +192,62 @@ type patronType struct {
 // curl -H 'Content-Type: application/json;charset=UTF-8'
 // 	-XPOST 'http://lib.hanyang.ac.kr/pyxis-api/api/login'
 // 	-d '{"loginId": "----",  "password": "----"}'
-func (p *Proxy) loginHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
+func (p *Proxy) loginHandler(id string, pw string) (b []byte, err error) {
 
-	data := loginRequest{
-		// TO BE IMPLEMENTED: get info from server.go
-		loginId:  "",
-		password: "",
+	loginInfo := loginRequest{
+		loginId:  id,
+		password: pw,
 	}
-	loginInfo, err := p.libraryService.Login(data.loginId, data.password)
+	// loginInfo, err := p.libraryService.Login(data.loginId, data.password)
 
-	body, err := ioutil.ReadAll(r.Body)
-	r.Body.Close()
+	loginInfoBytes, _ := json.Marshal(loginInfo)
+	buff := bytes.NewBuffer(loginInfoBytes)
+
+	loginReq, err := http.NewRequest("POST", defaultLibraryAddress+"/api/login", buff)
+	loginReq.Header.Add("Content-Type", "application/json;charset=UTF-8")
+
+	loginClient := &http.Client{}
+	loginResp, err := loginClient.Do(loginReq)
 	if err != nil {
-		log.Println(errors.Wrap(err, "failed to read body of /pyxis-api/api/login"))
+		log.Println(errors.Wrap(err, "failed to complete POST request /pyxis-api/api/login"))
 	}
-	log.Printf("body: %s\n", string(body))
+	defer loginResp.Body.Close()
 
+	loginRespBody, err := ioutil.ReadAll(loginResp.Body)
 	var response response
-	if err := json.Unmarshal(body, &response); err != nil {
+	if err := json.Unmarshal(loginRespBody, &response); err != nil {
 		log.Println(errors.Wrap(err, "failed to unmarshal /pyxis-api/api/login"))
 	}
 
-	loginInfo.LoginToken = response.data.accessToken
+	loginInfo.loginToken = response.data.accessToken
 
 	// TESTING
-	responseJson, _ := json.Marshal(response)
-	w.Write(responseJson)
-	return
+	// responseJson, _ := json.Marshal(response)
+	// w.Write(responseJson)
+
+	// Request
+	// curl -H 'Content-Type: application/json;charset=UTF-8'
+	// 	-XGET 'http://lib.hanyang.ac.kr/pyxis-api//1/api/charges?max=1000'
+	// 	-c 'JESSIONID='
+	req, err := http.NewRequest("GET", defaultLibraryAddress+"/1/api/charges?max=1000", nil)
+	if err != nil {
+		return
+	}
+
+	req.AddCookie(&http.Cookie{Name: "JESSIONID", Value: loginInfo.loginToken})
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	return ioutil.ReadAll(resp.Body)
 }
 
-// Request
-// curl -H 'Content-Type: application/json;charset=UTF-8'
-// 	-XGET 'http://lib.hanyang.ac.kr/pyxis-api//1/api/charges?max=1000'
-// 	-c 'JESSIONID='
-func (p *Proxy) libHandler(w http.ResponseWriter, r *http.Request) {
+func (p *Proxy) libHandler(loginInfo *library.LoginInfo) {
 	return
 }
 
