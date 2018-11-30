@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
@@ -38,14 +37,14 @@ type service struct {
 	libraryLoginList library.Repository
 }
 
-func (s *service) Login(id string, pw string) (*library.LoginInfo, error) { //return accessToken
-	p, err := NewProxy(time.Now().Local().Format("2006-01-02"), Address(defaultLibraryAddress), s)
-	if err != nil {
-		log.Println(errors.Wrap(err, "failed to start new proxy"))
-	}
-	p.Start()
-	return nil, err
-}
+// func (s *service) Login(id string, pw string) (*library.LoginInfo, error) { //return accessToken
+// 	p, err := NewProxy(time.Now().Local().Format("2006-01-02"), Address(defaultLibraryAddress), s)
+// 	if err != nil {
+// 		log.Println(errors.Wrap(err, "failed to start new proxy"))
+// 	}
+// 	p.Start()
+// 	return nil, err
+// }
 
 func (s *service) GetDueDate(userkey string) (string, error) {
 	userLoginInfo, err := s.libraryLoginList.Find(userkey)
@@ -93,7 +92,8 @@ type loginRequest struct {
 	password string `json:"password"`
 
 	/// TO BE COMFIRMED
-	loginToken string `json:"loginToken"`
+	jsessionID     string `json:"JSESSIONID"`
+	pyxisAuthToken string `json:"pyxis-auth-token"`
 }
 
 // response contains Message for respText
@@ -115,7 +115,7 @@ type data struct {
 	printMemberNo        int         `json:"printMemberNo"`        //:"0000000000", 						// 학번
 	id                   string      `json:"id"`                   //:000000,
 	isExpired            bool        `json:"isExpired"`            //:false,
-	disableServices      []string    "disableServices"             //:["WORKER_RECALL","LECTURE","USER_INFO"],
+	disableServices      []string    `json:"disableServices"`      //:["WORKER_RECALL","LECTURE","USER_INFO"],
 	hasFamily            bool        `json:"hasFamily"`            //:false,
 	name                 string      `json:"name"`                 //:"000",
 	branch               branch      `json:"branch"`
@@ -192,11 +192,11 @@ type patronType struct {
 // curl -H 'Content-Type: application/json;charset=UTF-8'
 // 	-XPOST 'http://lib.hanyang.ac.kr/pyxis-api/api/login'
 // 	-d '{"loginId": "----",  "password": "----"}'
-func (p *Proxy) loginHandler(id string, pw string) (b []byte, err error) {
+func (s *service) Login(id string, pw string) (*library.LoginInfo, error) {
 
-	loginInfo := loginRequest{
-		loginId:  id,
-		password: pw,
+	loginInfo := &library.LoginInfo{
+		LoginId:  id,
+		Password: pw,
 	}
 	// loginInfo, err := p.libraryService.Login(data.loginId, data.password)
 
@@ -219,11 +219,11 @@ func (p *Proxy) loginHandler(id string, pw string) (b []byte, err error) {
 		log.Println(errors.Wrap(err, "failed to unmarshal /pyxis-api/api/login"))
 	}
 
-	loginInfo.loginToken = response.data.accessToken
+	loginInfo.LoginToken = response.data.accessToken
 
 	// TESTING
-	// responseJson, _ := json.Marshal(response)
-	// w.Write(responseJson)
+	// responseBytes, _ := json.Marshal(loginInfo)
+	// w.Write(responseBytes)
 
 	// Request
 	// curl -H 'Content-Type: application/json;charset=UTF-8'
@@ -231,20 +231,26 @@ func (p *Proxy) loginHandler(id string, pw string) (b []byte, err error) {
 	// 	-c 'JESSIONID='
 	req, err := http.NewRequest("GET", defaultLibraryAddress+"/1/api/charges?max=1000", nil)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	req.AddCookie(&http.Cookie{Name: "JESSIONID", Value: loginInfo.loginToken})
+	req.AddCookie(&http.Cookie{Name: "JESSIONID", Value: loginInfo.JSessionID})
 
-	client := &http.Client{}
-
-	resp, err := client.Do(req)
+	http.Handle(defaultLibraryAddress+"/api/login", new(staticHandler))
 	if err != nil {
-		return
+		return nil, err
 	}
-	defer resp.Body.Close()
 
-	return ioutil.ReadAll(resp.Body)
+	return loginInfo, nil
+}
+
+type staticHandler struct {
+	http.Handler
+}
+
+func (h *staticHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	str := "Your Request Path is " + req.URL.Path
+	w.Write([]byte(str))
 }
 
 func (p *Proxy) libHandler(loginInfo *library.LoginInfo) {

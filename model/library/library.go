@@ -5,6 +5,7 @@ type LoginInfo struct {
 	LoginId    string // Library login ID
 	Password   string // Library login PW
 	LoginToken string // Library login token
+	JSessionID string // Library jsession token
 }
 
 type Repository interface {
