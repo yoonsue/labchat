@@ -365,11 +365,13 @@ func (s *Server) library(request []string) string {
 	if l == nil {
 		str += "No result from the given id and pw"
 	} else {
-		str += "도서 "
+		str += l.LoginId
+		str += "님의 도서 "
 		str += "3" /////////
 		str += " 권("
 		str += "도서명1, 도서명2, 도서명3" /////////
 		str += "을 자동연장하였습니다."
+		str += "\nToken: " + l.LoginToken
 	}
 	return str
 }

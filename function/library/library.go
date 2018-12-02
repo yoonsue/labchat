@@ -92,8 +92,8 @@ type loginRequest struct {
 	password string `json:"password"`
 
 	/// TO BE COMFIRMED
-	jsessionID     string `json:"JSESSIONID"`
-	pyxisAuthToken string `json:"pyxis-auth-token"`
+	// jsessionID     string `json:"JSESSIONID"`
+	// pyxisAuthToken string `json:"pyxis-auth-token"`
 }
 
 // response contains Message for respText
@@ -200,10 +200,15 @@ func (s *service) Login(id string, pw string) (*library.LoginInfo, error) {
 	}
 	// loginInfo, err := p.libraryService.Login(data.loginId, data.password)
 
-	loginInfoBytes, _ := json.Marshal(loginInfo)
+	loginInfoRequest := loginRequest{id, pw}
+	loginInfoBytes, _ := json.Marshal(loginInfoRequest)
 	buff := bytes.NewBuffer(loginInfoBytes)
 
 	loginReq, err := http.NewRequest("POST", defaultLibraryAddress+"/api/login", buff)
+	if err != nil {
+		log.Println(errors.Wrap(err, "failed to make POST request /pyxis-api/api/login"))
+	}
+
 	loginReq.Header.Add("Content-Type", "application/json;charset=UTF-8")
 
 	loginClient := &http.Client{}
@@ -217,6 +222,14 @@ func (s *service) Login(id string, pw string) (*library.LoginInfo, error) {
 	var response response
 	if err := json.Unmarshal(loginRespBody, &response); err != nil {
 		log.Println(errors.Wrap(err, "failed to unmarshal /pyxis-api/api/login"))
+	}
+
+	log.Println(string(loginRespBody))
+	log.Println(response)
+
+	if response.success == false {
+		log.Println("library login response return false")
+		return nil, err
 	}
 
 	loginInfo.LoginToken = response.data.accessToken
@@ -251,10 +264,6 @@ type staticHandler struct {
 func (h *staticHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	str := "Your Request Path is " + req.URL.Path
 	w.Write([]byte(str))
-}
-
-func (p *Proxy) libHandler(loginInfo *library.LoginInfo) {
-	return
 }
 
 // IntialStore stores all login information at repository.
