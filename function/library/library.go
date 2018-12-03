@@ -188,10 +188,14 @@ type patronType struct {
 	// {"id":2,"name":"대학원"},
 }
 
+type userLibChargeInfo struct {
+	//
+}
+
 // Request
 // curl -H 'Content-Type: application/json;charset=UTF-8'
 // 	-XPOST 'http://lib.hanyang.ac.kr/pyxis-api/api/login'
-// 	-d '{"loginId": "----",  "password": "----"}'
+// 	-d '{"loginId": "----",  "password": "----"}' -i
 func (s *service) Login(id string, pw string) (*library.LoginInfo, error) {
 
 	loginInfo := &library.LoginInfo{
@@ -206,10 +210,12 @@ func (s *service) Login(id string, pw string) (*library.LoginInfo, error) {
 
 	loginReq, err := http.NewRequest("POST", defaultLibraryAddress+"/api/login", buff)
 	if err != nil {
-		log.Println(errors.Wrap(err, "failed to make POST request /pyxis-api/api/login"))
+		log.Println(errors.Wrap(err, "failed to make POST request"+defaultLibraryAddress+"/api/login"))
 	}
 
 	loginReq.Header.Add("Content-Type", "application/json;charset=UTF-8")
+
+	log.Println(loginReq)
 
 	loginClient := &http.Client{}
 	loginResp, err := loginClient.Do(loginReq)
@@ -218,43 +224,86 @@ func (s *service) Login(id string, pw string) (*library.LoginInfo, error) {
 	}
 	defer loginResp.Body.Close()
 
+	log.Println(loginResp.Header)
+	for _, cookie := range loginResp.Cookies() {
+		if cookie.Name == "JSESSIONID" {
+			loginInfo.JSessionID = cookie.Value
+		}
+	}
+	log.Println("PRINT loginInfo : ", loginInfo)
+
 	loginRespBody, err := ioutil.ReadAll(loginResp.Body)
 	var response response
 	if err := json.Unmarshal(loginRespBody, &response); err != nil {
 		log.Println(errors.Wrap(err, "failed to unmarshal /pyxis-api/api/login"))
 	}
 
-	log.Println(string(loginRespBody))
-	log.Println(response)
-
 	if response.success == false {
 		log.Println("library login response return false")
 		return nil, err
 	}
 
-	loginInfo.LoginToken = response.data.accessToken
-
-	// TESTING
-	// responseBytes, _ := json.Marshal(loginInfo)
-	// w.Write(responseBytes)
-
 	// Request
 	// curl -H 'Content-Type: application/json;charset=UTF-8'
 	// 	-XGET 'http://lib.hanyang.ac.kr/pyxis-api//1/api/charges?max=1000'
-	// 	-c 'JESSIONID='
-	req, err := http.NewRequest("GET", defaultLibraryAddress+"/1/api/charges?max=1000", nil)
+	// 	-c 'JSESSIONID='
+	userLibReq, err := http.NewRequest("GET", defaultLibraryAddress+"/1/api/charges?max=1000", nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req.AddCookie(&http.Cookie{Name: "JESSIONID", Value: loginInfo.JSessionID})
+	userLibReq.AddCookie(&http.Cookie{Name: "JESSIONID", Value: loginInfo.JSessionID})
 
 	http.Handle(defaultLibraryAddress+"/api/login", new(staticHandler))
 	if err != nil {
 		return nil, err
 	}
 
+	userLibClient := &http.Client{}
+	userLibResp, err := loginClient.Do(userLibReq)
+	if err != nil {
+		log.Println(errors.Wrap(err, "failed to complete GET request /pyxis-api/1/api/charges?max=1000"))
+	}
+	defer userLibResp.Body.Close()
+
+	userLibRespBody, err := ioutil.ReadAll(userLibResp.Body)
+	var userLibChargeInfo response
+	if err := json.Unmarshal(userLibRespBody, &response); err != nil {
+		log.Println(errors.Wrap(err, "failed to unmarshal /pyxis-api/1/api/charges?max=1000"))
+	}
+
 	return loginInfo, nil
+}
+
+func getURLHeaders(url string) map[string]interface{} {
+	response, err := http.Head(url)
+	if err != nil {
+		log.Fatal("Error: Unable to download URL (", url, ") with error: ", err)
+	}
+
+	if response.StatusCode != http.StatusOK {
+		log.Fatal("Error: HTTP Status = ", response.Status)
+	}
+
+	headers := make(map[string]interface{})
+
+	for k, v := range response.Header {
+		headers[strings.ToLower(k)] = string(v[0])
+	}
+
+	return headers
+}
+
+func getURLHeaderByKey(url string, key string) string {
+
+	headers := getURLHeaders(url)
+	key = strings.ToLower(key)
+
+	if value, ok := headers[key]; ok {
+		return value.(string)
+	}
+
+	return ""
 }
 
 type staticHandler struct {
