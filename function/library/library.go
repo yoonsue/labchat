@@ -46,13 +46,13 @@ type service struct {
 // 	return nil, err
 // }
 
-func (s *service) GetDueDate(userkey string) (string, error) {
+func (s *service) GetJSessionID(userkey string) (string, error) {
 	userLoginInfo, err := s.libraryLoginList.Find(userkey)
 	if err != nil {
 		log.Println(errors.Wrap(err, "failed to get login information"))
 		return "", err
 	}
-	return userLoginInfo.LoginToken, nil
+	return userLoginInfo.JSessionID, nil
 }
 
 type Address string
@@ -65,6 +65,7 @@ type Proxy struct {
 	libraryService Service
 }
 
+// NewProxy create new proxy server for library login function.
 func NewProxy(curTime string, cfg Address, ls Service) (p *Proxy, err error) {
 	return &Proxy{
 		currentTime:    curTime,
@@ -73,6 +74,7 @@ func NewProxy(curTime string, cfg Address, ls Service) (p *Proxy, err error) {
 	}, nil
 }
 
+// Start returns multiplexer for each URL.
 func (p *Proxy) Start() *mux.Router {
 	rou := mux.NewRouter()
 
@@ -88,7 +90,7 @@ type message struct {
 }
 
 type loginRequest struct {
-	loginId  string `json:"loginId"`
+	loginID  string `json:"loginId"`
 	password string `json:"password"`
 
 	/// TO BE COMFIRMED
@@ -199,7 +201,7 @@ type userLibChargeInfo struct {
 func (s *service) Login(id string, pw string) (*library.LoginInfo, error) {
 
 	loginInfo := &library.LoginInfo{
-		LoginId:  id,
+		LoginID:  id,
 		Password: pw,
 	}
 	// loginInfo, err := p.libraryService.Login(data.loginId, data.password)
@@ -260,62 +262,63 @@ func (s *service) Login(id string, pw string) (*library.LoginInfo, error) {
 	}
 
 	userLibClient := &http.Client{}
-	userLibResp, err := loginClient.Do(userLibReq)
+	userLibResp, err := userLibClient.Do(userLibReq)
 	if err != nil {
 		log.Println(errors.Wrap(err, "failed to complete GET request /pyxis-api/1/api/charges?max=1000"))
 	}
 	defer userLibResp.Body.Close()
 
 	userLibRespBody, err := ioutil.ReadAll(userLibResp.Body)
-	var userLibChargeInfo response
-	if err := json.Unmarshal(userLibRespBody, &response); err != nil {
+	var chargeInfo userLibChargeInfo
+	if err := json.Unmarshal(userLibRespBody, &chargeInfo); err != nil {
 		log.Println(errors.Wrap(err, "failed to unmarshal /pyxis-api/1/api/charges?max=1000"))
 	}
 
 	return loginInfo, nil
 }
 
-func getURLHeaders(url string) map[string]interface{} {
-	response, err := http.Head(url)
-	if err != nil {
-		log.Fatal("Error: Unable to download URL (", url, ") with error: ", err)
-	}
+// func getURLHeaders(url string) map[string]interface{} {
+// 	response, err := http.Head(url)
+// 	if err != nil {
+// 		log.Fatal("Error: Unable to download URL (", url, ") with error: ", err)
+// 	}
 
-	if response.StatusCode != http.StatusOK {
-		log.Fatal("Error: HTTP Status = ", response.Status)
-	}
+// 	if response.StatusCode != http.StatusOK {
+// 		log.Fatal("Error: HTTP Status = ", response.Status)
+// 	}
 
-	headers := make(map[string]interface{})
+// 	headers := make(map[string]interface{})
 
-	for k, v := range response.Header {
-		headers[strings.ToLower(k)] = string(v[0])
-	}
+// 	for k, v := range response.Header {
+// 		headers[strings.ToLower(k)] = string(v[0])
+// 	}
 
-	return headers
-}
+// 	return headers
+// }
 
-func getURLHeaderByKey(url string, key string) string {
+// func getURLHeaderByKey(url string, key string) string {
 
-	headers := getURLHeaders(url)
-	key = strings.ToLower(key)
+// 	headers := getURLHeaders(url)
+// 	key = strings.ToLower(key)
 
-	if value, ok := headers[key]; ok {
-		return value.(string)
-	}
+// 	if value, ok := headers[key]; ok {
+// 		return value.(string)
+// 	}
 
-	return ""
-}
+// 	return ""
+// }
 
 type staticHandler struct {
 	http.Handler
 }
 
-func (h *staticHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	str := "Your Request Path is " + req.URL.Path
-	w.Write([]byte(str))
-}
+// // ServeHTTP writes the request path in http body.
+// func (h *staticHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+// 	str := "Your Request Path is " + req.URL.Path
+// 	w.Write([]byte(str))
+// }
 
-// IntialStore stores all login information at repository.
+// intialStore stores all login information at repository.
 func (s *service) intialStore(fpath string) error {
 	lines, err := readLines(fpath)
 	if err != nil {
@@ -329,7 +332,7 @@ func (s *service) intialStore(fpath string) error {
 		newLoginInfo := &library.LoginInfo{
 			// TO BE IMPLEMENTED: kakao userkey
 			UserKey:  "sample",
-			LoginId:  id,
+			LoginID:  id,
 			Password: pw,
 		}
 		s.libraryLoginList.Store(newLoginInfo)

@@ -248,11 +248,11 @@ func (r *LibraryRepository) Store(target *library.LoginInfo) error {
 	return nil
 }
 
-// Store saves location model in memory.
-func (r *LibraryRepository) StoreToken(target *library.LoginInfo, token string) error {
+// StoreJSessionID saves JSessionID to loginInfo.
+func (r *LibraryRepository) StoreJSessionID(target *library.LoginInfo, JSessionID string) error {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
-	target.LoginToken = token
+	target.JSessionID = JSessionID
 	return nil
 }
 
