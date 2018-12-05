@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/yoonsue/labchat/function/birthday"
+	"github.com/yoonsue/labchat/function/library"
 	"github.com/yoonsue/labchat/function/location"
 	"github.com/yoonsue/labchat/function/menu"
 	"github.com/yoonsue/labchat/function/phone"
@@ -23,6 +24,7 @@ func TestNewServer(t *testing.T) {
 	var ss status.Service
 	var bs birthday.Service
 	var ls location.Service
+	var libs library.Service
 	s := Server{
 		cfg: &Config{
 			Address: "localhost:8080",
@@ -32,8 +34,9 @@ func TestNewServer(t *testing.T) {
 		statusService:   ss,
 		birthdayService: bs,
 		locationService: ls,
+		libraryService:  libs,
 	}
-	gotServer, _ := NewServer(s.currentTime, s.cfg, ms, ps, ss, bs, ls)
+	gotServer, _ := NewServer(s.currentTime, s.cfg, ms, ps, ss, bs, ls, libs)
 	if s.cfg != gotServer.cfg {
 		t.Errorf("expected %s, got %s", s.cfg, gotServer.cfg)
 	}
