@@ -51,6 +51,7 @@ func TestStart(t *testing.T) {
 	var ss status.Service
 	var bs birthday.Service
 	var ls location.Service
+	var libs library.Service
 
 	s := Server{
 		cfg: &Config{
@@ -61,6 +62,7 @@ func TestStart(t *testing.T) {
 		statusService:   ss,
 		birthdayService: bs,
 		locationService: ls,
+		libraryService:  libs,
 	}
 	gotMux := s.Start()
 

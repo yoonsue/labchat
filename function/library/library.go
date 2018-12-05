@@ -17,6 +17,7 @@ import (
 
 const defaultLibraryAddress = "https://lib.hanyang.ac.kr/pyxis-api"
 
+// Service defines some functions that must be implemented.
 type Service interface {
 	// TO BE IMPLEMENTED: it would be a kakaotalk api userkey
 
@@ -25,6 +26,7 @@ type Service interface {
 	// Login(string) error
 }
 
+// NewService returns new library service.
 func NewService(r library.Repository, fpath string) Service {
 	s := &service{
 		libraryLoginList: r,
@@ -55,6 +57,7 @@ func (s *service) GetJSessionID(userkey string) (string, error) {
 	return userLoginInfo.JSessionID, nil
 }
 
+// Address is equal to URL which request is delivered.
 type Address string
 
 // Proxy provides http service for the library service.
@@ -108,7 +111,7 @@ type response struct {
 
 type data struct {
 	isPortalLogin        bool        `json:"isPortalLogin"`
-	alternativeId        string      `json:"alternativeId"`
+	alternativeID        string      `json:"alternativeId"`
 	accessToken          string      `json:"accessToken"`
 	parentDept           parentDept  `json:"parentDept"`
 	lastUpdated          string      `json:"lastUpdated"`
