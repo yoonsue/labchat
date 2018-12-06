@@ -357,7 +357,7 @@ func (s *Server) location(request []string) string {
 func (s *Server) library(request []string) string {
 	str := ""
 	if len(request) < 3 {
-		return "no name"
+		return "no id and pw"
 	}
 	id := request[1]
 	pw := request[2]
