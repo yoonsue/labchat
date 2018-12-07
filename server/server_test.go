@@ -307,6 +307,28 @@ func TestMsgFor(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	tmpLocFile, err := ioutil.TempFile("", "tmpLocation")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpLocFile.Name())
+	defer tmpLocFile.Close()
+
+	if _, err = tmpLocFile.Write([]byte("location1\tengineering building 10-1\n")); err != nil {
+		t.Fatal(err)
+	}
+
+	tmpLibFile, err := ioutil.TempFile("", "tmpLibrary")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpLibFile.Name())
+	defer tmpLibFile.Close()
+
+	if _, err = tmpLibFile.Write([]byte("id1\tpw1\n")); err != nil {
+		t.Fatal(err)
+	}
+
 	mr := inmem.NewMenuRepository()
 	ms := menu.NewService(mr)
 	pr := inmem.NewPhoneRepository()
@@ -314,6 +336,11 @@ func TestMsgFor(t *testing.T) {
 	var ss status.Service
 	br := inmem.NewBirthdayRepository()
 	bs := birthday.NewService(br, tmpBirthFile.Name())
+	lr := inmem.NewLocationRepository()
+	ls := location.NewService(lr, tmpLocFile.Name())
+	libr := inmem.NewLibraryRepository()
+	libs := library.NewService(libr, tmpLibFile.Name())
+
 	s := Server{
 		currentTime: "0000-00-00",
 		cfg: &Config{
@@ -323,6 +350,8 @@ func TestMsgFor(t *testing.T) {
 		phoneService:    ps,
 		statusService:   ss,
 		birthdayService: bs,
+		locationService: ls,
+		libraryService:  libs,
 	}
 
 	testCases := []struct {
@@ -370,9 +399,29 @@ func TestMsgFor(t *testing.T) {
 			"name1",
 		},
 		{
-			strings.Fields("hello"),
-			"hello....????",
+			strings.Fields("위치"),
+			"no location name",
 		},
+		{
+			strings.Fields("위치 none"),
+			"No result from the given location",
+		},
+		{
+			strings.Fields("위치 location1"),
+			"location1 위치:",
+		},
+		{
+			strings.Fields("도서"),
+			"no id and pw",
+		},
+		{
+			strings.Fields("도서 no-id no-pw"),
+			"No result from the given id and pw",
+		},
+		// {
+		// 	strings.Fields("도서 id1 pw1"),
+		// 	"id1님의 도서 ",
+		// },
 	}
 
 	for _, c := range testCases {

@@ -337,7 +337,7 @@ func (s *Server) birthday(request []string) string {
 func (s *Server) location(request []string) string {
 	str := ""
 	if len(request) < 2 {
-		return "no name"
+		return "no location name"
 	}
 	name := request[1]
 	l, _ := s.locationService.GetLocation(name)
