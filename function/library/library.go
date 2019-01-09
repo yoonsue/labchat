@@ -249,9 +249,9 @@ func (s *service) Login(id string, pw string) (*library.LoginInfo, error) {
 	}
 
 	// Request
-	// curl -H 'Content-Type: application/json;charset=UTF-8'
-	// 	-XGET 'http://lib.hanyang.ac.kr/pyxis-api//1/api/charges?max=1000'
-	// 	-c 'JSESSIONID='
+	// curl -v -i -H 'Content-Type: application/jsonF-8' -XGET 'http://lib.hanyang.ac.kr/pyxis-api/1/api/charges?max=1000'
+	// -H 'pyxis-auth-token: e9dseeuo1lgsnkelkee972qgl6tc66l5'
+
 	userLibReq, err := http.NewRequest("GET", defaultLibraryAddress+"/1/api/charges?max=1000", nil)
 	if err != nil {
 		return nil, err
