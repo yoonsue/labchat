@@ -15,7 +15,7 @@ import (
 	"github.com/yoonsue/labchat/model/library"
 )
 
-const defaultLibraryAddress = "https://lib.hanyang.ac.kr/pyxis-api"
+const defaultLibraryAddress = "http://lib.hanyang.ac.kr/pyxis-api"
 
 // Service defines some functions that must be implemented.
 type Service interface {
@@ -103,10 +103,10 @@ type loginRequest struct {
 
 // response contains Message for respText
 type response struct {
-	success bool   `json:"success"`
-	code    string `json:"code"`
-	message bool   `json:"message"`
-	data    data   `json:"data"`
+	success bool `json:"success"`
+	// code    int  `json:"code"`
+	// message bool `json:"message"`
+	data data `json:"data"`
 }
 
 type data struct {
@@ -193,8 +193,62 @@ type patronType struct {
 	// {"id":2,"name":"대학원"},
 }
 
+// {
+// 	"success":true,"code":"success.retrieved",
+// 	"message":"조회되었습니다.",
+// 	"data":{
+// 		"totalCount":1,"offset":0,"max":1000,
+// 		"list":[
+// 		{
+// 			"id":12560178,"barcode":"YEM000644427",
+// 			"biblio":
+// 			{
+// 				"id":17780350,"titleStatement":"클라우드 컴퓨팅 :개념에서 설계, 아키텍처까지",
+// 				"isbn":"9791161751788","thumbnail":null
+// 			},
+// 			"branch":
+// 			{
+// 				"id":9,"name":"ERICA학술정보관","alias":"ERICA","libraryCode":"241050"
+// 			},"callNo":"004.6782 E69cKㄱㅅ",
+// 			"chargeDate":"2019-01-04 00:00:00",
+// 			"dueDate":"2019-02-07 00:00:00",
+// 			"overdueDays":0,
+// 			"renewCnt":0,"holdCnt":0,"isMediaCharge":false,"supplementNote":null
+// 		}
+// 		]
+// 	}
+// }
+type userLibTokenInfo struct {
+	//
+	success bool              `json:"success"`
+	message bool              `json:"message"`
+	data    userLibChargeInfo `json:"data"`
+}
+
 type userLibChargeInfo struct {
 	//
+	totalCount int    `json:"totalCount"`
+	list       []book `json:"list"`
+}
+
+type book struct {
+	// "id":12560178,"barcode":"YEM000644427",
+	// "biblio":
+	// {
+	// 	"id":17780350,"titleStatement":"클라우드 컴퓨팅 :개념에서 설계, 아키텍처까지",
+	// 	"isbn":"9791161751788","thumbnail":null
+	// },
+	// "branch":
+	// {
+	// 	"id":9,"name":"ERICA학술정보관","alias":"ERICA","libraryCode":"241050"
+	// },"callNo":"004.6782 E69cKㄱㅅ",
+	// "chargeDate":"2019-01-04 00:00:00",
+	// "dueDate":"2019-02-07 00:00:00",
+	// "overdueDays":0,
+	// "renewCnt":0,"holdCnt":0,"isMediaCharge":false,"supplementNote":null
+	dueDate     string `"dueDate"`
+	overdueDays int    `"overdueDays"`
+	renewCnt    int    `"renewCnt"`
 }
 
 // Request
@@ -220,7 +274,7 @@ func (s *service) Login(id string, pw string) (*library.LoginInfo, error) {
 
 	loginReq.Header.Add("Content-Type", "application/json;charset=UTF-8")
 
-	log.Println(loginReq)
+	log.Println("loginReq: ", loginReq)
 
 	loginClient := &http.Client{}
 	loginResp, err := loginClient.Do(loginReq)
@@ -229,19 +283,23 @@ func (s *service) Login(id string, pw string) (*library.LoginInfo, error) {
 	}
 	defer loginResp.Body.Close()
 
-	log.Println(loginResp.Header)
-	for _, cookie := range loginResp.Cookies() {
-		if cookie.Name == "JSESSIONID" {
-			loginInfo.JSessionID = cookie.Value
-		}
-	}
-	log.Println("PRINT loginInfo : ", loginInfo)
+	// log.Println("loginResp HEADER: ", loginResp.Header)
+
+	// for _, cookie := range loginResp.Cookies() {
+	// 	if cookie.Name == "JSESSIONID" {
+	// 		loginInfo.JSessionID = cookie.Value
+	// 	}
+	// }
+	// log.Println("PRINT loginInfo : ", loginInfo)
 
 	loginRespBody, err := ioutil.ReadAll(loginResp.Body)
 	var response response
 	if err := json.Unmarshal(loginRespBody, &response); err != nil {
 		log.Println(errors.Wrap(err, "failed to unmarshal /pyxis-api/api/login"))
 	}
+
+	log.Print("loginResp: ", loginResp)
+	log.Print("response: ", response)
 
 	if response.success == false {
 		log.Println("library login response return false")
@@ -257,12 +315,7 @@ func (s *service) Login(id string, pw string) (*library.LoginInfo, error) {
 		return nil, err
 	}
 
-	userLibReq.AddCookie(&http.Cookie{Name: "JESSIONID", Value: loginInfo.JSessionID})
-
-	http.Handle(defaultLibraryAddress+"/api/login", new(staticHandler))
-	if err != nil {
-		return nil, err
-	}
+	userLibReq.Header.Add("pyxis-auth-token", response.data.accessToken)
 
 	userLibClient := &http.Client{}
 	userLibResp, err := userLibClient.Do(userLibReq)
@@ -272,10 +325,12 @@ func (s *service) Login(id string, pw string) (*library.LoginInfo, error) {
 	defer userLibResp.Body.Close()
 
 	userLibRespBody, err := ioutil.ReadAll(userLibResp.Body)
-	var chargeInfo userLibChargeInfo
+	var chargeInfo userLibTokenInfo
 	if err := json.Unmarshal(userLibRespBody, &chargeInfo); err != nil {
 		log.Println(errors.Wrap(err, "failed to unmarshal /pyxis-api/1/api/charges?max=1000"))
 	}
+
+	log.Print(chargeInfo)
 
 	return loginInfo, nil
 }
