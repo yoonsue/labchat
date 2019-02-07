@@ -414,3 +414,11 @@ func readLines(path string) ([]string, error) {
 	}
 	return lines, scanner.Err()
 }
+
+// When request completed,
+// https://lib.hanyang.ac.kr/pyxis-api/renew-charges/12560178
+// {message: "수정되었습니다.", data: "2019-02-22", code: "success.updated", success: true}
+// code: "success.updated"
+// data: "2019-02-22"
+// message: "수정되었습니다."
+// success: true
